@@ -24,6 +24,10 @@ extern "C" {
 
 using namespace Botan_FFI;
 
+/*
+* X.509 certificate
+**************************/
+
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
 
 BOTAN_FFI_DECLARE_STRUCT(botan_x509_cert_struct, Botan::X509_Certificate, 0x8F628937);
@@ -343,6 +347,10 @@ const char* botan_x509_cert_validation_status(int code) {
 #endif
 }
 
+/*
+* X.509 certificate revocation list
+**************************/
+
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
 
 BOTAN_FFI_DECLARE_STRUCT(botan_x509_crl_struct, Botan::X509_CRL, 0x2C628910);
@@ -482,12 +490,15 @@ int botan_x509_cert_verify_with_crl(int* result_code,
 #endif
 }
 
+/*
+* X.509 certificate authority
+**************************/
+
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
 
 BOTAN_FFI_DECLARE_STRUCT(botan_x509_ca_struct, Botan::X509_CA, 0x63458bb4);
 BOTAN_FFI_DECLARE_STRUCT(botan_x509_csr_struct, Botan::PKCS10_Request, 0x3a369b4b);
 BOTAN_FFI_DECLARE_STRUCT(botan_x509_exts_struct, Botan::Extensions, 0xb5ffd19c);
-BOTAN_FFI_DECLARE_STRUCT(botan_x509_cert_options_struct, Botan::X509_Cert_Options, 0x90c5a192);
 
 #endif
 
@@ -568,6 +579,47 @@ int botan_x509_ca_choose_extensions(
    botan_x509_csr_t csr,
    botan_x509_cert_t ca_cert,
    const char* hash_fn) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   // TODO: BOTAN_UNUSED(...)
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+/*
+* X.509 certificate signing request
+**************************/
+
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+
+BOTAN_FFI_DECLARE_STRUCT(botan_x509_cert_options_struct, Botan::X509_Cert_Options, 0x90c5a192);
+
+#endif
+
+int botan_x509_create_cert_req(
+   botan_x509_csr_t* csr,
+   botan_x509_cert_options_t opts,
+   botan_privkey_t key,
+   const char* hash_fn,
+   botan_rng_t rng) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   // TODO: BOTAN_UNUSED(...)
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+int botan_x509_csr_create(
+   botan_x509_csr_t* csr,
+   botan_privkey_t key,
+   const char* subject_dn,
+   botan_x509_exts_t extensions,
+   const char* hash_fn,
+   botan_rng_t rng,
+   const char* padding_fn,
+   const char* challenge) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;
 #else

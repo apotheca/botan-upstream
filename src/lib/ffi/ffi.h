@@ -1828,16 +1828,14 @@ int botan_x509_cert_verify_with_crl(int* validation_result,
                                     uint64_t reference_time);
 
 /*
-* X.509 certificate authority, signing request
+* X.509 certificate authority
 **************************/
 
 typedef struct botan_x509_ca_struct* botan_x509_ca_t;
-typedef struct botan_x509_cert_options_struct* botan_x509_cert_options_t;
 typedef struct botan_x509_csr_struct* botan_x509_csr_t;
 typedef struct botan_x509_exts_struct* botan_x509_exts_t;
-// typedef struct botan_x509_cert_options_struct* botan_x509_cert_options_t;
 
-BOTAN_FFI_EXPORT(3,4)
+BOTAN_FFI_EXPORT(3,3)
 int botan_x509_ca_create(
    botan_x509_ca_t* ca,
    botan_x509_cert_t cert,
@@ -1845,7 +1843,7 @@ int botan_x509_ca_create(
    const char* hash_fn,
    botan_rng_t rng);
 
-BOTAN_FFI_EXPORT(3,4)
+BOTAN_FFI_EXPORT(3,3)
 int botan_x509_ca_create_padding(
    botan_x509_ca_t* ca,
    botan_x509_cert_t cert,
@@ -1854,10 +1852,10 @@ int botan_x509_ca_create_padding(
    const char* padding_fn,
    botan_rng_t rng);
 
-BOTAN_FFI_EXPORT(3,4)
+BOTAN_FFI_EXPORT(3,3)
 int botan_x509_ca_destroy(botan_x509_ca_t ca);
 
-BOTAN_FFI_EXPORT(3,4)
+BOTAN_FFI_EXPORT(3,3)
 int botan_x509_ca_sign_request(
    botan_x509_cert_t* cert,
    botan_x509_csr_t csr,
@@ -1865,7 +1863,7 @@ int botan_x509_ca_sign_request(
    uint64_t not_before,
    uint64_t not_after);
 
-BOTAN_FFI_EXPORT(3,4)
+BOTAN_FFI_EXPORT(3,3)
 int botan_x509_ca_make_cert(
    botan_x509_cert_t* cert,
    botan_pk_op_sign_t signer,
@@ -1879,12 +1877,37 @@ int botan_x509_ca_make_cert(
    const char* subject_dn,
    botan_x509_exts_t exts);
 
-BOTAN_FFI_EXPORT(3,4)
+BOTAN_FFI_EXPORT(3,3)
 int botan_x509_ca_choose_extensions(
    botan_x509_exts_t* exts,
    botan_x509_csr_t csr,
    botan_x509_cert_t ca_cert,
    const char* hash_fn);
+
+/*
+* X.509 certificate signing request
+**************************/
+
+typedef struct botan_x509_cert_options_struct* botan_x509_cert_options_t;
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_create_cert_req(
+   botan_x509_csr_t* csr,
+   botan_x509_cert_options_t opts,
+   botan_privkey_t key,
+   const char* hash_fn,
+   botan_rng_t rng);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_csr_create(
+   botan_x509_csr_t* csr,
+   botan_privkey_t key,
+   const char* subject_dn,
+   botan_x509_exts_t extensions,
+   const char* hash_fn,
+   botan_rng_t rng,
+   const char* padding_fn,
+   const char* challenge);
 
 /**
  * Key wrapping as per RFC 3394
