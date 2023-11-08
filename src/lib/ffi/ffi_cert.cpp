@@ -491,4 +491,89 @@ BOTAN_FFI_DECLARE_STRUCT(botan_x509_cert_options_struct, Botan::X509_Cert_Option
 
 #endif
 
+int botan_x509_ca_create(
+   botan_x509_ca_t* ca,
+   botan_x509_cert_t cert,
+   botan_privkey_t key,
+   const char* hash_fn,
+   botan_rng_t rng) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   // TODO: BOTAN_UNUSED(...)
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+int botan_x509_ca_create_padding(
+   botan_x509_ca_t* ca,
+   botan_x509_cert_t cert,
+   botan_privkey_t key,
+   const char* hash_fn,
+   const char* padding_fn,
+   botan_rng_t rng) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   // TODO: BOTAN_UNUSED(...)
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+int botan_x509_ca_destroy(botan_x509_ca_t ca) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   // TODO: BOTAN_UNUSED(...)
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+int botan_x509_ca_sign_request(
+   botan_x509_cert_t* cert,
+   botan_x509_csr_t csr,
+   botan_rng_t rng,
+   uint64_t not_before,
+   uint64_t not_after) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   // TODO: BOTAN_UNUSED(...)
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+int botan_x509_ca_make_cert(
+   botan_x509_cert_t* cert,
+   botan_pk_op_sign_t signer,
+   botan_rng_t rng,
+   botan_mp_t serial_number,
+   const char* sig_algo,
+   botan_pubkey_t key,
+   uint64_t not_before,
+   uint64_t not_after,
+   const char* issuer_dn,
+   const char* subject_dn,
+   botan_x509_exts_t exts) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   // TODO: BOTAN_UNUSED(...)
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+int botan_x509_ca_choose_extensions(
+   botan_x509_exts_t* exts,
+   botan_x509_csr_t csr,
+   botan_x509_cert_t ca_cert,
+   const char* hash_fn) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   // TODO: BOTAN_UNUSED(...)
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
 } // extern "C"
