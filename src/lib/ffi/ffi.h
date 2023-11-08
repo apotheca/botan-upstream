@@ -2,6 +2,7 @@
 * FFI (C89 API)
 * (C) 2015,2017 Jack Lloyd
 * (C) 2021 René Fischer
+* (C) 2023 Leo Dillinger
 *
 * Botan is released under the Simplified BSD License (see license.txt)
 */
@@ -1825,6 +1826,25 @@ int botan_x509_cert_verify_with_crl(int* validation_result,
                                     size_t required_strength,
                                     const char* hostname,
                                     uint64_t reference_time);
+
+/*
+* X.509 certificate authority
+**************************/
+
+typedef struct botan_x509_ca_struct* botan_x509_ca_t;
+typedef struct botan_x509_cert_options_struct* botan_x509_cert_options_t;
+
+/*
+* X.509 certificate signing request
+**************************/
+
+typedef struct botan_x509_csr_struct* botan_x509_csr_t;
+
+/*
+* X.509 extensions
+**************************/
+
+typedef struct botan_x509_exts_struct* botan_x509_exts_t;
 
 /**
  * Key wrapping as per RFC 3394

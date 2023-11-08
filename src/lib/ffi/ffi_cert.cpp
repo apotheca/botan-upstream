@@ -1,5 +1,6 @@
 /*
 * (C) 2015,2017,2018 Jack Lloyd
+* (C) 2023 Leo Dillinger
 *
 * Botan is released under the Simplified BSD License (see license.txt)
 */
@@ -12,7 +13,9 @@
 
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
    #include <botan/data_src.h>
+   #include <botan/x509_ca.h>
    #include <botan/x509_crl.h>
+   #include <botan/x509self.h>
    #include <botan/x509cert.h>
    #include <botan/x509path.h>
 #endif
@@ -478,4 +481,14 @@ int botan_x509_cert_verify_with_crl(int* result_code,
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
-}
+
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+
+BOTAN_FFI_DECLARE_STRUCT(botan_x509_ca_struct, Botan::X509_CA, 0x63458bb4);
+BOTAN_FFI_DECLARE_STRUCT(botan_x509_csr_struct, Botan::PKCS10_Request, 0x3a369b4b);
+BOTAN_FFI_DECLARE_STRUCT(botan_x509_exts_struct, Botan::Extensions, 0xb5ffd19c);
+BOTAN_FFI_DECLARE_STRUCT(botan_x509_cert_options_struct, Botan::X509_Cert_Options, 0x90c5a192);
+
+#endif
+
+} // extern "C"
