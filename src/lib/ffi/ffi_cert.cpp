@@ -628,4 +628,18 @@ int botan_x509_csr_create(
 #endif
 }
 
+int botan_x509_create_self_signed_cert(
+   botan_x509_cert_t* cert,
+   botan_x509_cert_options_t opts,
+   botan_privkey_t key,
+   const char* hash_fn,
+   botan_rng_t rng) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   // TODO: BOTAN_UNUSED(...)
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
 } // extern "C"

@@ -1909,6 +1909,14 @@ int botan_x509_csr_create(
    const char* padding_fn,
    const char* challenge);
 
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_create_self_signed_cert(
+   botan_x509_cert_t* cert,
+   botan_x509_cert_options_t opts,
+   botan_privkey_t key,
+   const char* hash_fn,
+   botan_rng_t rng);
+
 /**
  * Key wrapping as per RFC 3394
  */
