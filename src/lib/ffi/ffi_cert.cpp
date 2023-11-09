@@ -6,9 +6,12 @@
 */
 
 #include <botan/ffi.h>
+#include <botan/pubkey.h>
 
 #include <botan/internal/ffi_pkey.h>
+#include <botan/internal/ffi_rng.h>
 #include <botan/internal/ffi_util.h>
+
 #include <memory>
 
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
@@ -494,6 +497,8 @@ int botan_x509_cert_verify_with_crl(int* result_code,
 * X.509 certificate authority
 **************************/
 
+// TODO: Implement functions mentioned in the handbook, vs implement every function?
+
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
 
 BOTAN_FFI_DECLARE_STRUCT(botan_x509_ca_struct, Botan::X509_CA, 0x63458bb4);
@@ -508,8 +513,12 @@ int botan_x509_ca_create(
    botan_privkey_t key,
    const char* hash_fn,
    botan_rng_t rng) {
+
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+   // NOTE: I'm not even sure why I have botan_x509_ca_create instead
+   // of just using botan_x509_ca_create_padding. I'm just following
+   // the handbook.
+   return botan_x509_ca_create_padding(ca, cert, key, hash_fn, "", rng);
 #else
    // TODO: BOTAN_UNUSED(...)
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
@@ -524,7 +533,38 @@ int botan_x509_ca_create_padding(
    const char* padding_fn,
    botan_rng_t rng) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+
+   *ca = nullptr;
+
+   if(hash_fn == nullptr || padding_fn == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
+
+   // TODO: Should I do this? Or use BOTAN_FFI_VISIT (which implies this too)?
+   // I think ffi_guard_thunk is used when creating something, and then
+   // BOTAN_FFI_VISIT is used on the function's primary object we are calling
+   return ffi_guard_thunk(__func__, [=]() -> int {
+
+      std::unique_ptr<Botan::X509_CA> ca_obj;
+
+      auto cert_obj = safe_get(cert);
+      Botan::Private_Key& key_obj = safe_get(key);
+      // NOTE: These are probably unnecessary now with the null ptr check
+      // std::string hash_fn_str = hash_fn ? hash_fn : "";
+      // std::string padding_fn_str = padding_fn ? padding_fn : "";
+      Botan::RandomNumberGenerator& rng_obj = safe_get(rng);
+
+      *ca_obj = Botan::X509_CA(cert_obj, key_obj, hash_fn, padding_fn, rng_obj);
+
+      if(ca_obj) {
+         *ca = new botan_x509_ca_struct(std::move(ca_obj));
+         return BOTAN_FFI_SUCCESS;
+      }
+
+      return BOTAN_FFI_ERROR_UNKNOWN_ERROR;
+
+   });
+
 #else
    // TODO: BOTAN_UNUSED(...)
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
@@ -533,9 +573,9 @@ int botan_x509_ca_create_padding(
 
 int botan_x509_ca_destroy(botan_x509_ca_t ca) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+   return BOTAN_FFI_CHECKED_DELETE(ca);
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(ca);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
