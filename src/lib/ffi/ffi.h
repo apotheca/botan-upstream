@@ -1828,12 +1828,18 @@ int botan_x509_cert_verify_with_crl(int* validation_result,
                                     uint64_t reference_time);
 
 /*
-* X.509 certificate authority
+* X.509 Certificate Authority
 **************************/
 
 typedef struct botan_x509_ca_struct* botan_x509_ca_t;
 typedef struct botan_x509_csr_struct* botan_x509_csr_t;
 typedef struct botan_x509_exts_struct* botan_x509_exts_t;
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_ca_destroy(botan_x509_ca_t ca);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_csr_destroy(botan_x509_csr_t csr);
 
 BOTAN_FFI_EXPORT(3,3)
 int botan_x509_ca_create(
@@ -1853,18 +1859,42 @@ int botan_x509_ca_create_padding(
    botan_rng_t rng);
 
 BOTAN_FFI_EXPORT(3,3)
-int botan_x509_ca_destroy(botan_x509_ca_t ca);
-
-BOTAN_FFI_EXPORT(3,3)
 int botan_x509_ca_sign_request(
    botan_x509_cert_t* cert,
+   botan_x509_ca_t ca,
    botan_x509_csr_t csr,
    botan_rng_t rng,
    uint64_t not_before,
    uint64_t not_after);
 
+// TODO: Variant that allows specifying serial instead
+// of generating one from 128 random bits
+// BOTAN_FFI_EXPORT(3,3)
+// int botan_x509_ca_sign_request_serial(
+//    botan_x509_cert_t* cert,
+//    botan_x509_ca_t ca,
+//    botan_x509_csr_t csr,
+//    botan_rng_t rng,
+//    botan_mp_t serial_number,
+//    uint64_t not_before,
+//    uint64_t not_after);
+
+// TODO: Variant that generates the serial automatically
+// BOTAN_FFI_EXPORT(3,3)
+// int botan_x509_ca_make_cert(
+//    botan_x509_cert_t* cert,
+//    botan_pk_op_sign_t signer,
+//    botan_rng_t rng,
+//    const char* sig_algo,
+//    botan_pubkey_t key,
+//    uint64_t not_before,
+//    uint64_t not_after,
+//    const uint8_t issuer_dn[], size_t issuer_dn_len,
+//    const uint8_t subject_dn[], size_t subject_dn_len,
+//    botan_x509_exts_t exts);
+
 BOTAN_FFI_EXPORT(3,3)
-int botan_x509_ca_make_cert(
+int botan_x509_ca_make_cert_serial(
    botan_x509_cert_t* cert,
    botan_pk_op_sign_t signer,
    botan_rng_t rng,
@@ -1873,8 +1903,8 @@ int botan_x509_ca_make_cert(
    botan_pubkey_t key,
    uint64_t not_before,
    uint64_t not_after,
-   const char* issuer_dn,
-   const char* subject_dn,
+   const uint8_t issuer_dn[], size_t issuer_dn_len,
+   const uint8_t subject_dn[], size_t subject_dn_len,
    botan_x509_exts_t exts);
 
 BOTAN_FFI_EXPORT(3,3)
@@ -1902,7 +1932,7 @@ BOTAN_FFI_EXPORT(3,3)
 int botan_x509_csr_create(
    botan_x509_csr_t* csr,
    botan_privkey_t key,
-   const char* subject_dn,
+   const uint8_t issuer_dn[], size_t issuer_dn_len,
    botan_x509_exts_t extensions,
    const char* hash_fn,
    botan_rng_t rng,
@@ -1916,6 +1946,8 @@ int botan_x509_create_self_signed_cert(
    botan_privkey_t key,
    const char* hash_fn,
    botan_rng_t rng);
+
+// TODO: Cert options struct members and functions
 
 /**
  * Key wrapping as per RFC 3394

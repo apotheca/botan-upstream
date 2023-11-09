@@ -507,6 +507,24 @@ BOTAN_FFI_DECLARE_STRUCT(botan_x509_exts_struct, Botan::Extensions, 0xb5ffd19c);
 
 #endif
 
+int botan_x509_ca_destroy(botan_x509_ca_t ca) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_CHECKED_DELETE(ca);
+#else
+   BOTAN_UNUSED(ca);
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+int botan_x509_csr_destroy(botan_x509_csr_t csr) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_CHECKED_DELETE(csr);
+#else
+   BOTAN_UNUSED(csr);
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
 int botan_x509_ca_create(
    botan_x509_ca_t* ca,
    botan_x509_cert_t cert,
@@ -571,17 +589,9 @@ int botan_x509_ca_create_padding(
 #endif
 }
 
-int botan_x509_ca_destroy(botan_x509_ca_t ca) {
-#if defined(BOTAN_HAS_X509_CERTIFICATES)
-   return BOTAN_FFI_CHECKED_DELETE(ca);
-#else
-   BOTAN_UNUSED(ca);
-   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
-#endif
-}
-
 int botan_x509_ca_sign_request(
    botan_x509_cert_t* cert,
+   botan_x509_ca_t ca,
    botan_x509_csr_t csr,
    botan_rng_t rng,
    uint64_t not_before,
@@ -594,7 +604,7 @@ int botan_x509_ca_sign_request(
 #endif
 }
 
-int botan_x509_ca_make_cert(
+int botan_x509_ca_make_cert_serial(
    botan_x509_cert_t* cert,
    botan_pk_op_sign_t signer,
    botan_rng_t rng,
@@ -603,8 +613,8 @@ int botan_x509_ca_make_cert(
    botan_pubkey_t key,
    uint64_t not_before,
    uint64_t not_after,
-   const char* issuer_dn,
-   const char* subject_dn,
+   const uint8_t issuer_dn[], size_t issuer_dn_len,
+   const uint8_t subject_dn[], size_t subject_dn_len,
    botan_x509_exts_t exts) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;
@@ -654,7 +664,7 @@ int botan_x509_create_cert_req(
 int botan_x509_csr_create(
    botan_x509_csr_t* csr,
    botan_privkey_t key,
-   const char* subject_dn,
+   const uint8_t subject_dn[], size_t subject_dn_len,
    botan_x509_exts_t extensions,
    const char* hash_fn,
    botan_rng_t rng,
