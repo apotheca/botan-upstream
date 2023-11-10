@@ -127,6 +127,36 @@ int botan_x509_dn_add_attribute(
 }
 
 /*
+* X.509 Certificate Extensions
+**************************/
+
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+
+BOTAN_FFI_DECLARE_STRUCT(botan_x509_cert_ext_struct, Botan::Certificate_Extension, 0xb5ffd19c);
+BOTAN_FFI_DECLARE_STRUCT(botan_x509_exts_struct, Botan::Extensions, 0xac898f09);
+
+#endif
+
+
+int botan_x509_cert_ext_destroy(botan_x509_cert_ext_t ext) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_CHECKED_DELETE(ext);
+#else
+   BOTAN_UNUSED(ca);
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+int botan_x509_exts_destroy(botan_x509_exts_t exts) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_CHECKED_DELETE(exts);
+#else
+   BOTAN_UNUSED(ca);
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+/*
 * X.509 certificate
 **************************/
 
@@ -628,7 +658,6 @@ int botan_x509_cert_verify_with_crl(int* result_code,
 
 BOTAN_FFI_DECLARE_STRUCT(botan_x509_ca_struct, Botan::X509_CA, 0x63458bb4);
 BOTAN_FFI_DECLARE_STRUCT(botan_x509_csr_struct, Botan::PKCS10_Request, 0x3a369b4b);
-BOTAN_FFI_DECLARE_STRUCT(botan_x509_exts_struct, Botan::Extensions, 0xb5ffd19c);
 
 #endif
 

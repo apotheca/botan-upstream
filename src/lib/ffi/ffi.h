@@ -1798,6 +1798,83 @@ int botan_x509_dn_add_attribute(
    const uint8_t val[], size_t val_len);
 
 /*
+* X.509 Certificate Extensions
+**************************/
+
+// TODO: Probably use extn instead of ext
+// TODO: Singular extension vs extensions object...
+typedef struct botan_x509_cert_ext_struct* botan_x509_cert_ext_t;
+// TODO: Rename this ^ or that v for consistency
+typedef struct botan_x509_exts_struct* botan_x509_exts_t;
+// There will probably be issues with allocating and free'ing
+// individual extension structs vs the extensions struct
+// unless we transfer ownership to the exts object and automatically
+// destroy child extension objects when the extensions object is
+// destroyed.
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_ext_destroy(botan_x509_cert_ext_t exts);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_exts_destroy(botan_x509_exts_t exts);
+
+// NOTE: Ownership of objects is finnicky across the C FFI barrier, especially
+// with nested objects
+// TODO: Determine whether we should bother with individual extension objects:
+/*
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_ext_basic_constraints(
+   botan_x509_cert_ext_t* ext,
+   bool ca,
+   int path_limit);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_ext_key_usage(
+   botan_x509_cert_ext_t* ext,
+   unsigned int key_usage);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_ext_subject_key_id(
+   botan_x509_cert_ext_t* ext,
+   botan_pubkey_t pubkey,
+   const char* hash_fn);
+
+// ...
+
+//*/
+// Or if we should just deal with the Extensions object:
+/*
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_exts_add_basic_constraints(
+   botan_x509_exts_t ext,
+   bool ca,
+   int path_limit,
+   bool critical,
+   bool replace);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_exts_key_usage(
+   botan_x509_exts_t ext,
+   unsigned int key_usage,
+   bool critical,
+   bool replace);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_exts_subject_key_id(
+   botan_x509_exts_t ext,
+   botan_pubkey_t pubkey,
+   const char* hash_fn,
+   bool critical,
+   bool replace);
+
+//*/
+
+// TODO: Rest of the X509 Extensions, once a decision is made.
+
+
+/*
 * X.509 certificates
 **************************/
 
@@ -1953,7 +2030,6 @@ int botan_x509_cert_verify_with_crl(int* validation_result,
 
 typedef struct botan_x509_ca_struct* botan_x509_ca_t;
 typedef struct botan_x509_csr_struct* botan_x509_csr_t;
-typedef struct botan_x509_exts_struct* botan_x509_exts_t;
 
 BOTAN_FFI_EXPORT(3,3)
 int botan_x509_ca_destroy(botan_x509_ca_t ca);
