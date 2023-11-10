@@ -21,11 +21,110 @@
    #include <botan/x509self.h>
    #include <botan/x509cert.h>
    #include <botan/x509path.h>
+   #include <botan/pkix_types.h>
 #endif
 
 extern "C" {
 
 using namespace Botan_FFI;
+
+/*
+* X.509 distinguished names
+**************************/
+
+BOTAN_FFI_DECLARE_STRUCT(botan_x509_dn_struct, Botan::X509_DN, 0x85a46206);
+
+int botan_x509_dn_create(botan_x509_dn_t* dn) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   // TODO: BOTAN_UNUSED(...)
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+int botan_x509_dn_create_from_multimap(
+   botan_x509_dn_t* dn,
+   const uint8_t* keys[], const size_t key_lens[],
+   const uint8_t* vals[], const size_t val_lens[],
+   size_t count
+   ) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   // TODO: BOTAN_UNUSED(...)
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+int botan_x509_dn_to_string(
+   uint8_t out[], size_t* out_len,
+   botan_x509_dn_t dn) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   // TODO: BOTAN_UNUSED(...)
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+int botan_x509_dn_has_field(
+   botan_x509_dn_t dn,
+   const uint8_t key[], size_t key_len) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   // TODO: BOTAN_UNUSED(...)
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+int botan_x509_dn_get_first_attribute(
+   uint8_t out[], size_t* out_len,
+   botan_x509_dn_t dn,
+   const uint8_t key[], size_t key_len) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   // TODO: BOTAN_UNUSED(...)
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+int botan_x509_dn_get_attribute(
+   uint8_t** vals, size_t* val_sizes, size_t* val_count,
+   botan_x509_dn_t dn,
+   const uint8_t key[], size_t key_len) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   // TODO: BOTAN_UNUSED(...)
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+int botan_x509_dn_contents(
+   uint8_t** keys, size_t* key_sizes, uint8_t** vals, size_t* val_sizes, size_t* count,
+   botan_x509_dn_t dn) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   // TODO: BOTAN_UNUSED(...)
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+int botan_x509_dn_add_attribute(
+   botan_x509_dn_t dn,
+   const uint8_t key[], size_t key_len,
+   const uint8_t val[], size_t val_len) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   // TODO: BOTAN_UNUSED(...)
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
 
 /*
 * X.509 certificate
@@ -122,6 +221,19 @@ int botan_x509_cert_get_issuer_dn(
 #endif
 }
 
+int botan_x509_cert_issuer_dn(
+   botan_x509_dn_t* dn,
+   botan_x509_cert_t cert,
+   const char* key,
+   size_t index) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   // TODO: BOTAN_UNUSED(...)
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
 int botan_x509_cert_get_subject_dn(
    botan_x509_cert_t cert, const char* key, size_t index, uint8_t out[], size_t* out_len) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
@@ -129,6 +241,19 @@ int botan_x509_cert_get_subject_dn(
                           [=](const auto& c) { return write_str_output(out, out_len, c.subject_info(key).at(index)); });
 #else
    BOTAN_UNUSED(cert, key, index, out, out_len);
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+int botan_x509_cert_subject_dn(
+   botan_x509_dn_t* dn,
+   botan_x509_cert_t cert,
+   const char* key,
+   size_t index) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   // TODO: BOTAN_UNUSED(...)
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }

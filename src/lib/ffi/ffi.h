@@ -1694,6 +1694,110 @@ int botan_mceies_decrypt(botan_privkey_t mce_key,
                          size_t* pt_len);
 
 /*
+* X.509 general
+**************************/
+
+// TODO: Returning bytestrings, discuss:
+//    uint8_t out[], size_t* out_len,
+// vs
+//    uint8_t* out, size_t* out_len
+// Different authors have preferred either, I forget at this moment
+// whether it matters.
+
+// TODO: Implement explicit PEM and  BER / DER encoding / decoding
+// Eg, X509 Certs have to_string, but not PEM_encode or BER_encode
+//
+// BOTAN_FFI_EXPORT(3,3)
+// int botan_x509_foo_encode_pem(
+//    uint8_t out[], size_t* out_len,
+//    botan_x509_foo_t foo);
+//
+// BOTAN_FFI_EXPORT(3,3)
+// int botan_x509_foo_encode_der(
+//    uint8_t out[], size_t* out_len,
+//    botan_x509_foo_t foo);
+
+/*
+* X.509 distinguished names
+**************************/
+
+// NOTE: I do not know if Botan supports multi-valued X509_DN,
+// and will not assume so until I perform the required research.
+// NOTE: The FFI has no OID type, and I will not implement one at this time.
+// I will just use encoded string functions.
+
+// NOTE: For multimap<string,string> FFI output :
+//    uint8_t** keys, size_t* key_sizes,
+//    uint8_t** vals, size_t* val_sizes,
+//    size_t* count
+// For input? - need to have a proper discussion on this:
+//    const uint8_t keys[][], size_t key_lens[],
+//    const uint8_t vals[][], size_t val_lens[],
+//    size_t count
+// NO doesnt work; trying:
+//    const uint8_t* keys[], const size_t key_lens[],
+//    const uint8_t* vals[], const size_t val_lens[],
+//    size_t count
+
+typedef struct botan_x509_dn_struct* botan_x509_dn_t;
+
+// TODO: Add / update various DN encoded-string functions
+//    uint8_t dn[], size_t* dn_len
+// with DN objects
+//    botan_x509_dn_t* dn
+// For now, just construct a DN, encode it, and pass
+// to the DN encoded-string functions.
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_dn_create(botan_x509_dn_t* dn);
+
+// NOTE: botan_x509_dn_load?
+// TODO: Improve upon? See discussion of multimap input / output
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_dn_create_from_multimap(
+   botan_x509_dn_t* dn,
+   const uint8_t* keys[], const size_t key_lens[],
+   const uint8_t* vals[], const size_t val_lens[],
+   size_t count
+   );
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_dn_to_string(
+   uint8_t out[], size_t* out_len,
+   botan_x509_dn_t dn);
+
+// TODO: Implement BER / DER encoding?
+
+// NOTE: Returns boolean success code
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_dn_has_field(
+   botan_x509_dn_t dn,
+   const uint8_t key[], size_t key_len);
+   
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_dn_get_first_attribute(
+   uint8_t out[], size_t* out_len,
+   botan_x509_dn_t dn,
+   const uint8_t key[], size_t key_len);
+   
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_dn_get_attribute(
+   uint8_t** vals, size_t* val_sizes, size_t* val_count,
+   botan_x509_dn_t dn,
+   const uint8_t key[], size_t key_len);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_dn_contents(
+   uint8_t** keys, size_t* key_sizes, uint8_t** vals, size_t* val_sizes, size_t* count,
+   botan_x509_dn_t dn);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_dn_add_attribute(
+   botan_x509_dn_t dn,
+   const uint8_t key[], size_t key_len,
+   const uint8_t val[], size_t val_len);
+
+/*
 * X.509 certificates
 **************************/
 
@@ -1734,9 +1838,25 @@ BOTAN_FFI_EXPORT(2, 0)
 int botan_x509_cert_get_issuer_dn(
    botan_x509_cert_t cert, const char* key, size_t index, uint8_t out[], size_t* out_len);
 
+// NOTE: Returns an actual DN object
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_issuer_dn(
+   botan_x509_dn_t* dn,
+   botan_x509_cert_t cert,
+   const char* key,
+   size_t index);
+
 BOTAN_FFI_EXPORT(2, 0)
 int botan_x509_cert_get_subject_dn(
    botan_x509_cert_t cert, const char* key, size_t index, uint8_t out[], size_t* out_len);
+
+// NOTE: Returns an actual DN object
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_subject_dn(
+   botan_x509_dn_t* dn,
+   botan_x509_cert_t cert,
+   const char* key,
+   size_t index);
 
 BOTAN_FFI_EXPORT(2, 0) int botan_x509_cert_to_string(botan_x509_cert_t cert, char out[], size_t* out_len);
 
