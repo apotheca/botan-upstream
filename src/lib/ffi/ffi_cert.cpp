@@ -512,6 +512,8 @@ const char* botan_x509_cert_validation_status(int code) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
 
 BOTAN_FFI_DECLARE_STRUCT(botan_x509_crl_struct, Botan::X509_CRL, 0x2C628910);
+// Found in x509_crl.h
+BOTAN_FFI_DECLARE_STRUCT(botan_x509_crl_entry_struct, Botan::CRL_Entry, 0x4dcfbd84);
 
 #endif
 
@@ -644,6 +646,15 @@ int botan_x509_cert_verify_with_crl(int* result_code,
 #else
    BOTAN_UNUSED(result_code, cert, intermediates, intermediates_len, trusted);
    BOTAN_UNUSED(trusted_len, trusted_path, hostname_cstr, reference_time, crls, crls_len);
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+int botan_x509_crl_entry_destroy(botan_x509_crl_entry_t entry) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_CHECKED_DELETE(entry);
+#else
+   BOTAN_UNUSED(crl);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }

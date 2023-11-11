@@ -1993,6 +1993,23 @@ BOTAN_FFI_EXPORT(2, 8) const char* botan_x509_cert_validation_status(int code);
 **************************/
 
 typedef struct botan_x509_crl_struct* botan_x509_crl_t;
+typedef struct botan_x509_crl_struct* botan_x509_crl_entry_t;
+
+// TODO: FFI constants for:
+/*
+enum class CRL_Code : uint32_t {
+   Unspecified = 0,
+   KeyCompromise = 1,
+   CaCompromise = 2,
+   AffiliationChanged = 3,
+   Superseded = 4,
+   CessationOfOperation = 5,
+   CertificateHold = 6,
+   RemoveFromCrl = 8,
+   PrivilegeWithdrawn = 9,
+   AaCompromise = 10,
+};
+*/
 
 BOTAN_FFI_EXPORT(2, 13) int botan_x509_crl_load_file(botan_x509_crl_t* crl_obj, const char* crl_path);
 BOTAN_FFI_EXPORT(2, 13)
@@ -2023,6 +2040,39 @@ int botan_x509_cert_verify_with_crl(int* validation_result,
                                     size_t required_strength,
                                     const char* hostname,
                                     uint64_t reference_time);
+
+// TODO: More CRL functions
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_crl_entry_destroy(botan_x509_crl_entry_t entry);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_crl_entry_create(
+   botan_x509_crl_entry_t* entry,
+   botan_x509_cert_t cert,
+   uint32_t reason_code);
+
+// TODO: CRL_Entry PEM / BER encode / decode (and for CRL too)
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_crl_entry_get_serial_number(
+   uint8_t out[], size_t* out_len,
+   botan_x509_crl_entry_t entry);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_crl_entry_get_expire_time(
+   uint64_t* expire_time,
+   botan_x509_crl_entry_t entry);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_crl_entry_get_reason_code(
+   uint32_t* reason_code,
+   botan_x509_crl_entry_t entry);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_crl_entry_get_extensions(
+   botan_x509_exts_t* exts,
+   botan_x509_crl_entry_t entry);
 
 /*
 * X.509 Certificate Authority
@@ -2094,6 +2144,9 @@ int botan_x509_ca_make_cert_serial(
    botan_x509_cert_t* cert,
    botan_pk_op_sign_t signer,
    botan_rng_t rng,
+   // NOTE: In other situations, the serial number is a byte array
+   // SEE: botan_x509_cert_get_serial_number for example
+   // Why is it a BigInt here? (C++ source has it that way?)
    botan_mp_t serial_number,
    const char* sig_algo,
    botan_pubkey_t key,
