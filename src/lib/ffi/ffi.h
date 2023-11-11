@@ -2287,6 +2287,39 @@ int botan_x509_cert_store_certificate_known(
 //    botan_x509_cert_store_t cert_store);
 
 /**
+* In Memory Certificate Store
+*/
+
+// TODO: Determine whether these should use a new struct type
+// I think we should continue to use botan_x509_cert_store_t
+// in keeping with how other virtual classes are used, eg
+// by throwing an error code if incorrect type
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_store_in_memory_load_dir(
+   botan_x509_cert_store_t* cert_store,
+   const char* dir_path);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_store_in_memory_load_cert(
+   botan_x509_cert_store_t* cert_store,
+   botan_x509_cert_t cert);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_store_in_memory_create(
+   botan_x509_cert_store_t* cert_store);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_store_in_memory_add_certificate(
+   botan_x509_cert_store_t cert_store,
+   botan_x509_cert_t cert);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_store_in_memory_add_crl(
+   botan_x509_cert_store_t cert_store,
+   botan_x509_crl_t crl);
+
+/**
  * Key wrapping as per RFC 3394
  */
 BOTAN_FFI_DEPRECATED("Use botan_nist_kw_enc")

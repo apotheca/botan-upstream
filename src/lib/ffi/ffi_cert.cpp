@@ -23,6 +23,7 @@
    #include <botan/x509path.h>
    #include <botan/pkix_types.h>
    #include <botan/certstor.h>
+   // #include <botan/certstor_flatfile.h>
 #endif
 
 extern "C" {
@@ -951,6 +952,63 @@ int botan_x509_cert_store_find_crl_for(
 int botan_x509_cert_store_certificate_known(
    botan_x509_cert_store_t cert_store,
    botan_x509_cert_t cert) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   // TODO: BOTAN_UNUSED(...)
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+/**
+* In Memory Certificate Store
+*/
+int botan_x509_cert_store_in_memory_load_dir(
+   botan_x509_cert_store_t* cert_store,
+   const char* dir_path) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   // TODO: BOTAN_UNUSED(...)
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+int botan_x509_cert_store_in_memory_load_cert(
+   botan_x509_cert_store_t* cert_store,
+   botan_x509_cert_t cert) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   // TODO: BOTAN_UNUSED(...)
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+int botan_x509_cert_store_in_memory_create(
+   botan_x509_cert_store_t* cert_store) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   // TODO: BOTAN_UNUSED(...)
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+int botan_x509_cert_store_in_memory_add_certificate(
+   botan_x509_cert_store_t cert_store,
+   botan_x509_cert_t cert) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   // TODO: BOTAN_UNUSED(...)
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+int botan_x509_cert_store_in_memory_add_crl(
+   botan_x509_cert_store_t cert_store,
+   botan_x509_crl_t crl) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;
 #else
