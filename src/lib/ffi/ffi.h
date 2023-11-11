@@ -2167,6 +2167,7 @@ int botan_x509_ca_choose_extensions(
 * X.509 certificate signing request
 **************************/
 
+// Found in: x509self.h
 typedef struct botan_x509_cert_options_struct* botan_x509_cert_options_t;
 
 BOTAN_FFI_EXPORT(3,3)
@@ -2197,6 +2198,93 @@ int botan_x509_create_self_signed_cert(
    botan_rng_t rng);
 
 // TODO: Cert options struct members and functions
+
+
+/*
+* X.509 Certificate Store
+**************************/
+
+/**
+* Certificate Store Interface
+*/
+
+// NOTE: It appears that X509 DN can contain arbitrary characters
+// Therefore we should use
+//    const uint8_t foo_dn[], size_t foo_dn_len
+// rather than
+//    const char* foo_dn
+// for inputs, and we'll figure out outputs when we run into them.
+// We will be using distinguished names in many functions.
+// ADDENDUM: Does botan alllow arbitrary DN?
+
+// NOTE: CRL Codes are not implemented, is enum: uint32_t
+// TODO: Change CRL_Code references from uint32_t to proper type
+
+// NOTE: Virtual functions call the function on the *pointed object*'s type
+// rather than calling based on the *pointer*'s type, so we can safely use
+// the certificate store base class while allowing subclass-specific functions
+// This explains the manner in which the FFI is implemented, and we will
+// therefore follow that pattern.
+typedef struct botan_x509_cert_store_struct* botan_x509_cert_store_t;
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_store_destroy(botan_x509_cert_store_t* cert_store);
+
+// NOTE: "Returns" a null pointer if not found?
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_store_find_cert(
+   botan_x509_cert_t* cert,
+   botan_x509_cert_store_t cert_store,
+   const uint8_t subject_dn[], size_t subject_dn_len,
+   const uint8_t key_id[], size_t key_id_len);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_store_find_all_certs(
+   // botan_x509_cert_t* certs, size_t* certs_len,
+   // or
+   botan_x509_cert_t** certs, size_t* certs_len,
+   botan_x509_cert_store_t cert_store,
+   const uint8_t subject_dn[], size_t subject_dn_len,
+   const uint8_t key_id[], size_t key_id_len);
+
+// NOTE: "Returns" a null pointer if not found?
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_store_find_cert_by_pubkey_sha1(
+   botan_x509_cert_t* cert,
+   botan_x509_cert_store_t cert_store,
+   // NOTE: SHA1 hash length is static, so we can just drop the size_t
+   const uint8_t key_hash[]);
+
+// NOTE: "Returns" a null pointer if not found?
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_store_find_cert_by_raw_subject_dn_sha256(
+   botan_x509_cert_t* cert,
+   botan_x509_cert_store_t cert_store,
+   // NOTE: SHA1 hash length is static, so we can just drop the size_t
+   const uint8_t subject_hash[]);
+
+// NOTE: "Returns" a null pointer if not found?
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_store_find_crl_for(
+   botan_x509_crl_t* crl,
+   botan_x509_cert_store_t cert_store,
+   botan_x509_cert_t cert);
+
+// NOTE: Returns cert_store.certificate_known ? 0 : -1;
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_store_certificate_known(
+   botan_x509_cert_store_t cert_store,
+   botan_x509_cert_t cert);
+
+// NOTE: Returns array of distinguished names
+// NOTE: Is marked as 'remove this'
+// Unsure of whether it should be implemented
+// Also its return values may not be correct;
+// I am using ZFEC code for comparison/
+// BOTAN_FFI_EXPORT(3,3)
+// int botan_x509_cert_store_all_subjects(
+//    uint8_t** outputs, size_t* sizes, size_t* count,
+//    botan_x509_cert_store_t cert_store);
 
 /**
  * Key wrapping as per RFC 3394

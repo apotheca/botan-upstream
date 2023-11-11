@@ -22,6 +22,7 @@
    #include <botan/x509cert.h>
    #include <botan/x509path.h>
    #include <botan/pkix_types.h>
+   #include <botan/certstor.h>
 #endif
 
 extern "C" {
@@ -849,6 +850,107 @@ int botan_x509_create_self_signed_cert(
    botan_privkey_t key,
    const char* hash_fn,
    botan_rng_t rng) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   // TODO: BOTAN_UNUSED(...)
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+/*
+* X.509 Certificate Store
+**************************/
+
+/**
+* Certificate Store Interface
+*/
+
+BOTAN_FFI_DECLARE_STRUCT(botan_x509_cert_store_struct, Botan::Certificate_Store, 0x114215c5);
+
+int botan_x509_cert_store_destroy(botan_x509_cert_store_t* cert_store) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   // TODO: BOTAN_UNUSED(...)
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+// NOTE: "Returns" a null pointer if not found?
+int botan_x509_cert_store_find_cert(
+   botan_x509_cert_t* cert,
+   botan_x509_cert_store_t cert_store,
+   const uint8_t subject_dn[], size_t subject_dn_len,
+   const uint8_t key_id[], size_t key_id_len) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   // TODO: BOTAN_UNUSED(...)
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+int botan_x509_cert_store_find_all_certs(
+   // botan_x509_cert_t* certs, size_t* certs_len,
+   // or
+   botan_x509_cert_t** certs, size_t* certs_len,
+   botan_x509_cert_store_t cert_store,
+   const uint8_t subject_dn[], size_t subject_dn_len,
+   const uint8_t key_id[], size_t key_id_len) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   // TODO: BOTAN_UNUSED(...)
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+// NOTE: "Returns" a null pointer if not found?
+int botan_x509_cert_store_find_cert_by_pubkey_sha1(
+   botan_x509_cert_t* cert,
+   botan_x509_cert_store_t cert_store,
+   // NOTE: SHA1 hash length is static, so we can just drop the size_t
+   const uint8_t key_hash[]) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   // TODO: BOTAN_UNUSED(...)
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+// NOTE: "Returns" a null pointer if not found?
+int botan_x509_cert_store_find_cert_by_raw_subject_dn_sha256(
+   botan_x509_cert_t* cert,
+   botan_x509_cert_store_t cert_store,
+   // NOTE: SHA1 hash length is static, so we can just drop the size_t
+   const uint8_t subject_hash[]) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   // TODO: BOTAN_UNUSED(...)
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+// NOTE: "Returns" a null pointer if not found?
+int botan_x509_cert_store_find_crl_for(
+   botan_x509_crl_t* crl,
+   botan_x509_cert_store_t cert_store,
+   botan_x509_cert_t cert) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   // TODO: BOTAN_UNUSED(...)
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+// NOTE: Returns cert_store.certificate_known ? 0 : -1;
+int botan_x509_cert_store_certificate_known(
+   botan_x509_cert_store_t cert_store,
+   botan_x509_cert_t cert) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;
 #else
