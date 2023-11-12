@@ -2336,6 +2336,85 @@ int botan_x509_cert_store_flatfile_create(
 //    Flatfile_Certificate_Store(Flatfile_Certificate_Store&&) = default;
 
 /**
+* SQL Certificate Store
+* Certificate and private key store backed by an SQL database.
+*/
+
+// NOTE: SQL_Database / Certificate_Store_In_SQL are abstract classes,
+// and it appears that sqlite3 is the only current implementation of
+// SQL_Database, and I'm not going to commit to implementing the C FFI
+// API for that at this time.
+// Just use the implementation-specific constructors, this is the C FFI!
+
+// BOTAN_FFI_DECLARE_STRUCT(botan_sql_db_struct, Botan::SQL_Database, 0x00000000);
+
+// BOTAN_FFI_EXPORT(3,3)
+// int botan_x509_cert_store_sql_create(
+//    botan_x509_cert_store_t* cert_store
+//    botan_sql_db_t db_path,
+//    const char* passwd,
+//    botan_rng_t rng,
+//    const char* table_prefix);
+
+// NOTE: Returns boolean success code
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_store_sql_insert_cert(
+   botan_x509_cert_store_t cert_store,
+   botan_x509_cert_t cert);
+
+// NOTE: Returns boolean success code
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_store_sql_remove_cert(
+   botan_x509_cert_store_t cert_store,
+   botan_x509_cert_t cert);
+
+// NOTE: Returns nullPtr if not found
+int botan_x509_cert_store_sql_find_key(
+   botan_privkey_t* key,
+   botan_x509_cert_store_t cert_store,
+   botan_x509_cert_t cert);
+
+int botan_x509_cert_store_sql_find_certs_for_key(
+   botan_x509_cert_t** certs, size_t* certs_len,
+   botan_x509_cert_store_t cert_store,
+   botan_privkey_t key);
+
+// NOTE: Returns boolean success code
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_store_sql_insert_key(
+   botan_x509_cert_store_t cert_store,
+   botan_x509_cert_t cert,
+   botan_privkey_t key);
+
+// NOTE: *DOES NOT* return boolean success code
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_store_sql_remove_key(
+   botan_x509_cert_store_t cert_store,
+   botan_privkey_t key);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_store_sql_revoke_cert(
+   botan_x509_cert_store_t cert_store,
+   botan_x509_cert_t cert,
+   uint32_t crl_code,
+   uint64_t time);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_store_sql_affirm_cert(
+   botan_x509_cert_store_t cert_store,
+   botan_x509_cert_t cert);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_store_sql_generate_crls(
+   botan_x509_crl_t** crls, size_t* crls_len,
+   botan_x509_cert_store_t cert_store);
+
+// NOTE: I am unsure if I need to implement botan_x509_cert_store_sql_find_crl_for,
+// or if botan_x509_cert_store_find_crl_for takes care of it. I do not think we
+// need to, or else I'd expect we need to for botan_x509_cert_store_sql_generate_crls
+// and botan_x509_cert_store_sqlite3_generate_crls
+
+/**
  * Key wrapping as per RFC 3394
  */
 BOTAN_FFI_DEPRECATED("Use botan_nist_kw_enc")

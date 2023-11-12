@@ -24,6 +24,7 @@
    #include <botan/pkix_types.h>
    #include <botan/certstor.h>
    // #include <botan/certstor_flatfile.h>
+   // #include <botan/certstor_sql.h>
 #endif
 
 extern "C" {
@@ -1026,6 +1027,120 @@ int botan_x509_cert_store_flatfile_create(
    botan_x509_cert_store_t* cert_store,
    const char* file_path,
    bool ignore_non_ca) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   // TODO: BOTAN_UNUSED(...)
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+/**
+* SQL Certificate Store
+* Certificate and private key store backed by an SQL database.
+*/
+
+// NOTE: Returns boolean success code
+int botan_x509_cert_store_sql_insert_cert(
+   botan_x509_cert_store_t cert_store,
+   botan_x509_cert_t cert) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   // TODO: BOTAN_UNUSED(...)
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+// NOTE: Returns boolean success code
+int botan_x509_cert_store_sql_remove_cert(
+   botan_x509_cert_store_t cert_store,
+   botan_x509_cert_t cert) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   // TODO: BOTAN_UNUSED(...)
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+// NOTE: Returns nullPtr if not found
+int botan_x509_cert_store_sql_find_key(
+   botan_privkey_t* key,
+   botan_x509_cert_store_t cert_store,
+   botan_x509_cert_t cert) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   // TODO: BOTAN_UNUSED(...)
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+int botan_x509_cert_store_sql_find_certs_for_key(
+   botan_x509_cert_t** certs, size_t* certs_len,
+   botan_x509_cert_store_t cert_store,
+   botan_privkey_t key) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   // TODO: BOTAN_UNUSED(...)
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+// NOTE: Returns boolean success code
+int botan_x509_cert_store_sql_insert_key(
+   botan_x509_cert_store_t cert_store,
+   botan_x509_cert_t cert,
+   botan_privkey_t key) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   // TODO: BOTAN_UNUSED(...)
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+// NOTE: *DOES NOT* return boolean success code
+int botan_x509_cert_store_sql_remove_key(
+   botan_x509_cert_store_t cert_store,
+   botan_privkey_t key) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   // TODO: BOTAN_UNUSED(...)
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+int botan_x509_cert_store_sql_revoke_cert(
+   botan_x509_cert_store_t cert_store,
+   botan_x509_cert_t cert,
+   uint32_t crl_code,
+   uint64_t time) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   // TODO: BOTAN_UNUSED(...)
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+int botan_x509_cert_store_sql_affirm_cert(
+   botan_x509_cert_store_t cert_store,
+   botan_x509_cert_t cert) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   // TODO: BOTAN_UNUSED(...)
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+int botan_x509_cert_store_sql_generate_crls(
+   botan_x509_crl_t** crls, size_t* crls_len,
+   botan_x509_cert_store_t cert_store) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;
 #else
