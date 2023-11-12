@@ -41,6 +41,15 @@ using namespace Botan_FFI;
 
 BOTAN_FFI_DECLARE_STRUCT(botan_x509_dn_struct, Botan::X509_DN, 0x85a46206);
 
+int botan_x509_dn_destroy(botan_x509_dn_t dn) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_CHECKED_DELETE(dn);
+#else
+   BOTAN_UNUSED(crl);
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
 int botan_x509_dn_create(botan_x509_dn_t* dn) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;

@@ -1741,6 +1741,9 @@ int botan_mceies_decrypt(botan_privkey_t mce_key,
 
 typedef struct botan_x509_dn_struct* botan_x509_dn_t;
 
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_dn_destroy(botan_x509_dn_t dn);
+
 // TODO: Add / update various DN encoded-string functions
 //    uint8_t dn[], size_t* dn_len
 // with DN objects
