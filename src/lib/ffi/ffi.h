@@ -2320,6 +2320,22 @@ int botan_x509_cert_store_in_memory_add_crl(
    botan_x509_crl_t crl);
 
 /**
+* Flatfile Certificate Store
+* Certificate Store that is backed by a file of PEMs of trusted CAs.
+*/
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_store_flatfile_create(
+   botan_x509_cert_store_t* cert_store,
+   const char* file_path,
+   bool ignore_non_ca
+   );
+
+// TODO: Determine if we need to implement the other two constructors:
+//    Flatfile_Certificate_Store(const Flatfile_Certificate_Store&) = default;
+//    Flatfile_Certificate_Store(Flatfile_Certificate_Store&&) = default;
+
+/**
  * Key wrapping as per RFC 3394
  */
 BOTAN_FFI_DEPRECATED("Use botan_nist_kw_enc")

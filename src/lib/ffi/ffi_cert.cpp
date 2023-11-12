@@ -1017,4 +1017,21 @@ int botan_x509_cert_store_in_memory_add_crl(
 #endif
 }
 
+/**
+* Flatfile Certificate Store
+* Certificate Store that is backed by a file of PEMs of trusted CAs.
+*/
+
+int botan_x509_cert_store_flatfile_create(
+   botan_x509_cert_store_t* cert_store,
+   const char* file_path,
+   bool ignore_non_ca) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   // TODO: BOTAN_UNUSED(...)
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
 } // extern "C"
