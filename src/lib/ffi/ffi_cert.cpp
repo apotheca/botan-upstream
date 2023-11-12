@@ -25,6 +25,7 @@
    #include <botan/certstor.h>
    // #include <botan/certstor_flatfile.h>
    // #include <botan/certstor_sql.h>
+   // #include <botan/certstor_sqlite.h>
 #endif
 
 extern "C" {
@@ -1141,6 +1142,24 @@ int botan_x509_cert_store_sql_affirm_cert(
 int botan_x509_cert_store_sql_generate_crls(
    botan_x509_crl_t** crls, size_t* crls_len,
    botan_x509_cert_store_t cert_store) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   // TODO: BOTAN_UNUSED(...)
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+/**
+* SQLite3 Certificate Store
+*/
+
+int botan_x509_cert_store_sqlite3_create(
+   botan_x509_cert_store_t* cert_store,
+   const char* db_path,
+   const char* passwd,
+   botan_rng_t rng,
+   const char* table_prefix) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;
 #else

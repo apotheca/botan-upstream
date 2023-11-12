@@ -2415,6 +2415,24 @@ int botan_x509_cert_store_sql_generate_crls(
 // and botan_x509_cert_store_sqlite3_generate_crls
 
 /**
+* SQLite3 Certificate Store
+* Certificate and private key store backed by an SQLite database.
+*/
+
+// NOTE: Is a subclass of Certificate_Store_In_SQL, so it can use the sql
+// functions as well
+
+// TODO: Just say sqlite or explicitly say sqlite3?
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_store_sqlite3_create(
+   botan_x509_cert_store_t* cert_store,
+   const char* db_path,
+   const char* passwd,
+   botan_rng_t rng,
+   const char* table_prefix);
+
+/**
  * Key wrapping as per RFC 3394
  */
 BOTAN_FFI_DEPRECATED("Use botan_nist_kw_enc")
