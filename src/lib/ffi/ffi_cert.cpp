@@ -26,6 +26,9 @@
    // #include <botan/certstor_flatfile.h>
    // #include <botan/certstor_sql.h>
    // #include <botan/certstor_sqlite.h>
+   // #include <botan/certstor_system.h>
+   // #include <botan/certstor_macos.h>
+   // #include <botan/certstor_windows.h>
 #endif
 
 extern "C" {
@@ -1160,6 +1163,48 @@ int botan_x509_cert_store_sqlite3_create(
    const char* passwd,
    botan_rng_t rng,
    const char* table_prefix) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   // TODO: BOTAN_UNUSED(...)
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+/**
+* System Certificate Store
+*/
+
+int botan_x509_cert_store_system_create(
+   botan_x509_cert_store_t* cert_store) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   // TODO: BOTAN_UNUSED(...)
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+/**
+* MacOS Certificate Store
+*/
+
+int botan_x509_cert_store_macos_create(
+   botan_x509_cert_store_t* cert_store) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   // TODO: BOTAN_UNUSED(...)
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+/**
+* Windows Certificate Store
+*/
+
+int botan_x509_cert_store_windows_create(
+   botan_x509_cert_store_t* cert_store) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;
 #else

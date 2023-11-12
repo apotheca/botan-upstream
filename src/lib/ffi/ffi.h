@@ -2433,6 +2433,45 @@ int botan_x509_cert_store_sqlite3_create(
    const char* table_prefix);
 
 /**
+* System Certificate Store
+* Assumed to be Unix.
+*/
+
+// TODO: Find documentation.
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_store_system_create(
+   botan_x509_cert_store_t* cert_store);
+
+/**
+* MacOS Certificate Store
+*/
+
+// NOTE: Not a subclass of System_Certificate_Store
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_store_macos_create(
+   botan_x509_cert_store_t* cert_store);
+
+// TODO: Determine if we need to implement the other two constructors:
+//    Certificate_Store_MacOS(const Certificate_Store_MacOS&) = default;
+//    Certificate_Store_MacOS(Certificate_Store_MacOS&&) = default;
+
+/**
+* Windows Certificate Store
+*/
+
+// NOTE: Not a subclass of System_Certificate_Store
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_store_windows_create(
+   botan_x509_cert_store_t* cert_store);
+
+// TODO: Determine if we need to implement the other two constructors:
+//    Certificate_Store_Windows(const Certificate_Store_Windows&) = default;
+//    Certificate_Store_Windows(Certificate_Store_Windows&&) = default;
+
+/**
  * Key wrapping as per RFC 3394
  */
 BOTAN_FFI_DEPRECATED("Use botan_nist_kw_enc")
