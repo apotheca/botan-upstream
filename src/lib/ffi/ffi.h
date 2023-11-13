@@ -2372,11 +2372,13 @@ int botan_x509_cert_store_sql_remove_cert(
    botan_x509_cert_t cert);
 
 // NOTE: Returns nullPtr if not found
+BOTAN_FFI_EXPORT(3,3)
 int botan_x509_cert_store_sql_find_key(
    botan_privkey_t* key,
    botan_x509_cert_store_t cert_store,
    botan_x509_cert_t cert);
 
+BOTAN_FFI_EXPORT(3,3)
 int botan_x509_cert_store_sql_find_certs_for_key(
    botan_x509_cert_t** certs, size_t* certs_len,
    botan_x509_cert_store_t cert_store,
