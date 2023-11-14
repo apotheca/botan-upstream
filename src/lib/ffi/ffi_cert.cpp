@@ -941,7 +941,7 @@ int botan_x509_create_self_signed_cert(
 
 BOTAN_FFI_DECLARE_STRUCT(botan_x509_cert_store_struct, Botan::Certificate_Store, 0x114215c5);
 
-int botan_x509_cert_store_destroy(botan_x509_cert_store_t* cert_store) {
+int botan_x509_cert_store_destroy(botan_x509_cert_store_t cert_store) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;
 #else
@@ -1272,6 +1272,142 @@ int botan_x509_cert_store_macos_create(
 
 int botan_x509_cert_store_windows_create(
    botan_x509_cert_store_t* cert_store) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   // TODO: BOTAN_UNUSED(...)
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+/*
+* X.509 Path validation
+**************************/
+
+BOTAN_FFI_DECLARE_STRUCT(botan_x509_path_validation_restrictions_struct, Botan::Path_Validation_Restrictions, 0xb070e8a9);
+BOTAN_FFI_DECLARE_STRUCT(botan_x509_path_validation_result_struct, Botan::Path_Validation_Result, 0xe7d9c255);
+
+int botan_x509_path_validation_restrictions_destroy(botan_x509_path_validation_restrictions_t restrictions) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   // TODO: BOTAN_UNUSED(...)
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+int botan_x509_path_validation_result_destroy(botan_x509_path_validation_result_t result) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   // TODO: BOTAN_UNUSED(...)
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+int botan_x509_path_validation_restrictions_create(
+   botan_x509_path_validation_restrictions_t* restrictions,
+   bool require_rev,
+   size_t minimum_key_strength,
+   bool ocsp_all_intermediates,
+   uint64_t max_ocsp_age,
+   botan_x509_cert_store_t trusted_ocsp_responders) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   // TODO: BOTAN_UNUSED(...)
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+// NOTE: This needs more than IF BOTAN_HAS_X509_CERTIFICATES
+// It needs the IF HTTP_UTIL as well?
+int x509_path_validate(
+   botan_x509_path_validation_result_t* result,
+   botan_x509_cert_t end_cert,
+   botan_x509_path_validation_restrictions_t* restrictions,
+   botan_x509_cert_store_t cert_store,
+   const char* hostname,
+   unsigned int usage,
+   uint64_t validation_time,
+   uint64_t ocsp_timeout,
+   void* ocsp_resp) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   // TODO: BOTAN_UNUSED(...)
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+int botan_x509_path_validation_result_successful_validation(
+   botan_x509_path_validation_result_t pvr) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   // TODO: BOTAN_UNUSED(...)
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+int botan_x509_path_validation_result_result_string(
+   char* result_string,
+   botan_x509_path_validation_result_t pvr) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   // TODO: BOTAN_UNUSED(...)
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+int botan_x509_path_validation_result_trust_root(
+   botan_x509_cert_t* trust_root,
+   botan_x509_path_validation_result_t pvr) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   // TODO: BOTAN_UNUSED(...)
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+int botan_x509_path_validation_result_cert_path(
+   botan_x509_cert_t** cert_path, size_t* cert_path_len,
+   botan_x509_path_validation_result_t pvr) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   // TODO: BOTAN_UNUSED(...)
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+int botan_x509_path_validation_result_status_code(
+   int* status_code,
+   botan_x509_path_validation_result_t pvr) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   // TODO: BOTAN_UNUSED(...)
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+int botan_x509_path_validation_result_all_status_codes(
+   int* status_codes, size_t* status_codes_len,
+   botan_x509_path_validation_result_t pvr) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   // TODO: BOTAN_UNUSED(...)
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+int botan_x509_path_validation_result_trusted_hashes(
+   char** trusted_hashes, size_t* trusted_hashes_len,
+   botan_x509_path_validation_result_t pvr) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;
 #else

@@ -1697,6 +1697,11 @@ int botan_mceies_decrypt(botan_privkey_t mce_key,
 * X.509 general
 **************************/
 
+// WARNING: Several functions return arrays of things:
+// DN functions return arrays of distinguished name values, key-value pairs
+// Store functions return arrays of certs
+// We need to make a consistent method of allocating / transferring ownership 
+
 // TODO: Returning bytestrings, discuss:
 //    uint8_t out[], size_t* out_len,
 // vs
@@ -1716,6 +1721,20 @@ int botan_mceies_decrypt(botan_privkey_t mce_key,
 // int botan_x509_foo_encode_der(
 //    uint8_t out[], size_t* out_len,
 //    botan_x509_foo_t foo);
+
+// TODO: X509_Usage_Type
+/*
+
+enum class Usage_Type {
+   UNSPECIFIED,  // no restrictions
+   TLS_SERVER_AUTH,
+   TLS_CLIENT_AUTH,
+   CERTIFICATE_AUTHORITY,
+   OCSP_RESPONDER,
+   ENCRYPTION
+};
+*/
+// SEE: cert allowed_usage, x509_path_validate
 
 /*
 * X.509 distinguished names
@@ -1754,7 +1773,7 @@ int botan_x509_dn_destroy(botan_x509_dn_t dn);
 BOTAN_FFI_EXPORT(3,3)
 int botan_x509_dn_create(botan_x509_dn_t* dn);
 
-// NOTE: botan_x509_dn_load?
+// TODO: Better name? botan_x509_dn_load?
 // TODO: Improve upon? See discussion of multimap input / output
 BOTAN_FFI_EXPORT(3,3)
 int botan_x509_dn_create_from_multimap(
@@ -2231,7 +2250,7 @@ int botan_x509_create_self_signed_cert(
 typedef struct botan_x509_cert_store_struct* botan_x509_cert_store_t;
 
 BOTAN_FFI_EXPORT(3,3)
-int botan_x509_cert_store_destroy(botan_x509_cert_store_t* cert_store);
+int botan_x509_cert_store_destroy(botan_x509_cert_store_t cert_store);
 
 // NOTE: "Returns" a null pointer if not found?
 BOTAN_FFI_EXPORT(3,3)
@@ -2475,6 +2494,118 @@ int botan_x509_cert_store_windows_create(
 // TODO: Determine if we need to implement the other two constructors:
 //    Certificate_Store_Windows(const Certificate_Store_Windows&) = default;
 //    Certificate_Store_Windows(Certificate_Store_Windows&&) = default;
+
+/*
+* X.509 Path validation
+**************************/
+
+// I'm sorry Captain, I cannae do it, I dont have the ~~power~~ shorter names
+// TODO: botan_x509_pv_*?
+typedef struct botan_x509_path_validation_restrictions_struct* botan_x509_path_validation_restrictions_t;
+typedef struct botan_x509_path_validation_result_struct* botan_x509_path_validation_result_t;
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_path_validation_restrictions_destroy(botan_x509_path_validation_restrictions_t restrictions);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_path_validation_result_destroy(botan_x509_path_validation_result_t result);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_path_validation_restrictions_create(
+   botan_x509_path_validation_restrictions_t* restrictions,
+   bool require_rev,
+   size_t minimum_key_strength,
+   bool ocsp_all_intermediates,
+   uint64_t max_ocsp_age,
+   botan_x509_cert_store_t trusted_ocsp_responders);
+
+// TODO: botan_x509_path_validation_restrictions_create_trusted_hashes
+
+/* 
+Path_Validation_Result x509_path_validate(
+   const X509_Certificate &end_cert,
+   const Path_Validation_Restrictions &restrictions,
+   const Certificate_Store &store, const std::string &hostname = "",
+   Usage_Type usage = Usage_Type::UNSPECIFIED,
+   std::chrono::system_clock::time_point validation_time = std::chrono::system_clock::now(),
+   std::chrono::milliseconds ocsp_timeout = std::chrono::milliseconds(0),
+   const std::vector<std::optional<OCSP::Response>> &ocsp_resp = std::vector<std::optional<OCSP::Response>>())
+*/
+// What a monster!
+/*
+From the handbook:
+
+> The last five parameters are optional. hostname specifies a hostname which is matched against the
+> subject DN in end_cert according to RFC 6125. An empty hostname disables hostname validation. usage
+> specifies key usage restrictions that are compared to the key usage fields in end_cert according to
+> RFC 5280, if not set to UNSPECIFIED. validation_time allows setting the time point at which all
+> certificates are validated. This is really only useful for testing. The default is the current
+> system clock’s current time. ocsp_timeout sets the timeout for OCSP requests. The default of 0
+> disables OCSP checks completely. ocsp_resp allows adding additional OCSP responses retrieved from
+> outside of the path validation. Note that OCSP online checks are done only as long as the http_util
+> module was compiled in. Availability of online OCSP checks can be checked using the macro
+> BOTAN_HAS_ONLINE_REVOCATION_CHECKS.
+> 
+> For the different flavors of x509_path_validate, check x509path.h.
+
+*/
+BOTAN_FFI_EXPORT(3,3)
+int x509_path_validate(
+   botan_x509_path_validation_result_t* result,
+   botan_x509_cert_t end_cert,
+   botan_x509_path_validation_restrictions_t* restrictions,
+   botan_x509_cert_store_t cert_store,
+   const char* hostname,
+   unsigned int usage,
+   uint64_t validation_time,
+   uint64_t ocsp_timeout,
+   void* ocsp_resp // I am not sure what to do with this just quite yet
+                   // Probably need to move data type decls to x509 general
+   );
+
+// TODO: Just call it botan_x509_path_validation_result_success?
+// NOTE: Returns a boolean success code
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_path_validation_result_successful_validation(
+   botan_x509_path_validation_result_t pvr);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_path_validation_result_result_string(
+   char* result_string,
+   botan_x509_path_validation_result_t pvr);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_path_validation_result_trust_root(
+   botan_x509_cert_t* trust_root,
+   botan_x509_path_validation_result_t pvr);
+
+// NOTE: Returns an array of results
+// SEE: Discussion on arrays / ownership
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_path_validation_result_cert_path(
+   botan_x509_cert_t** cert_path, size_t* cert_path_len,
+   botan_x509_path_validation_result_t pvr);
+
+// NOTE: Botan FFI is using `int` for Certificate_Status_Code in existing code
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_path_validation_result_status_code(
+   int* status_code,
+   botan_x509_path_validation_result_t pvr);
+
+// NOTE: Returns an array of results
+// SEE: Discussion on arrays / ownership
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_path_validation_result_all_status_codes(
+   int* status_codes, size_t* status_codes_len,
+   botan_x509_path_validation_result_t pvr);
+
+// NOTE: Returns an array of results
+// SEE: Discussion on arrays / ownership
+// DOUBLE NOTE: It returns an array of cstrings
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_path_validation_result_trusted_hashes(
+   char** trusted_hashes, size_t* trusted_hashes_len,
+   botan_x509_path_validation_result_t pvr);
 
 /**
  * Key wrapping as per RFC 3394
