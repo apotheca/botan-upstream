@@ -1322,7 +1322,7 @@ int botan_x509_path_validation_restrictions_create(
 
 // NOTE: This needs more than IF BOTAN_HAS_X509_CERTIFICATES
 // It needs the IF HTTP_UTIL as well?
-int x509_path_validate(
+int botan_x509_path_validate(
    botan_x509_path_validation_result_t* result,
    botan_x509_cert_t end_cert,
    botan_x509_path_validation_restrictions_t* restrictions,

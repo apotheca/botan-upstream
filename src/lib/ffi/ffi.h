@@ -2550,7 +2550,7 @@ From the handbook:
 
 */
 BOTAN_FFI_EXPORT(3,3)
-int x509_path_validate(
+int botan_x509_path_validate(
    botan_x509_path_validation_result_t* result,
    botan_x509_cert_t end_cert,
    botan_x509_path_validation_restrictions_t* restrictions,
