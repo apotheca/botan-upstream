@@ -2193,6 +2193,9 @@ int botan_x509_ca_choose_extensions(
 typedef struct botan_x509_cert_options_struct* botan_x509_cert_options_t;
 
 BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_options_destroy(botan_x509_cert_options_t opts);
+
+BOTAN_FFI_EXPORT(3,3)
 int botan_x509_create_cert_req(
    botan_x509_csr_t* csr,
    botan_x509_cert_options_t opts,
@@ -2219,8 +2222,185 @@ int botan_x509_create_self_signed_cert(
    const char* hash_fn,
    botan_rng_t rng);
 
-// TODO: Cert options struct members and functions
+/*
+* X.509 Certificate Options
+**************************/
 
+// NOTE: This is a /support object/, not really part of the X509 spec
+// but used to create them.
+
+// TODO: Cert options struct members and functions
+// NOTE: Using c strings for now instead of byte arrays - need to discuss
+// This is inconsistent with distinguished names being of arbitrary encoding
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_options_create(
+   botan_x509_cert_options_t* opts
+);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_options_create_common(
+   botan_x509_cert_options_t* opts,
+   const char* common_name,
+   const char* country,
+   const char* org,
+   const char* org_unit,
+   uint32_t expiration_time
+);
+
+// BOTAN_FFI_EXPORT(3,3)
+// int botan_x509_cert_options_set_common_name
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_options_set_common_name(
+   botan_x509_cert_options_t opts,
+   const char* common_name 
+);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_options_set_country(
+   botan_x509_cert_options_t opts,
+   const char* country 
+);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_options_set_org(
+   botan_x509_cert_options_t opts,
+   const char* org
+);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_options_set_org_unit(
+   botan_x509_cert_options_t opts,
+   const char* org_unit 
+);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_options_set_more_org_units(
+   botan_x509_cert_options_t opts,
+   const char** more_org_units, size_t* more_org_units_len
+);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_options_set_locality(
+   botan_x509_cert_options_t opts,
+   const char* locality 
+);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_options_set_state(
+   botan_x509_cert_options_t opts,
+   const char* state 
+);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_options_set_serial_number(
+   botan_x509_cert_options_t opts,
+   const char* serial_number 
+);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_options_set_email(
+   botan_x509_cert_options_t opts,
+   const char* email 
+);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_options_set_uri(
+   botan_x509_cert_options_t opts,
+   const char* uri 
+);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_options_set_ip(
+   botan_x509_cert_options_t opts,
+   const char* ip 
+);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_options_set_dns(
+   botan_x509_cert_options_t opts,
+   const char* dns 
+);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_options_set_more_dns(
+   botan_x509_cert_options_t opts,
+   const char** more_dns, size_t* more_dns_len
+);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_options_set_xmpp(
+   botan_x509_cert_options_t opts,
+   const char* xmpp 
+);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_options_set_challenge(
+   botan_x509_cert_options_t opts,
+   const char* challenge 
+);
+
+// Or _set_not_before
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_options_set_start(
+   botan_x509_cert_options_t opts,
+   uint64_t start
+);
+
+// Or _set_not_after
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_options_set_end(
+   botan_x509_cert_options_t opts,
+   uint64_t end
+);
+
+// TODO: Convenience functions for set_start_duration, set_expires
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_options_set_is_ca(
+   botan_x509_cert_options_t opts,
+   bool is_CA
+);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_options_set_path_limit(
+   botan_x509_cert_options_t opts,
+   size_t path_limit
+);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_options_set_padding_scheme(
+   botan_x509_cert_options_t opts,
+   const char* padding_scheme
+);
+
+// Or _set_key_usage
+// NOTE: key constraints use unsigned int in ffi, definitely need to give it something proper
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_options_set_key_constraints(
+   botan_x509_cert_options_t opts,
+   unsigned int constraints
+);
+
+// NOTE: Technically should take OIDs but no data type for that
+// TODO: Create list / spreadsheet of FFI data type mappings
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_options_set_ex_constraints(
+   botan_x509_cert_options_t opts,
+   const char** ex_constraints, size_t ex_constraints_len
+);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_options_set_extensions(
+   botan_x509_cert_options_t opts,
+   botan_x509_exts_t exts
+);
+
+// TODO: botan_x509_cert_options getters
+
+// TODO: botan_x509_cert_options functions (above is just members)
+// There's only a few though so its easy
 
 /*
 * X.509 Certificate Store
