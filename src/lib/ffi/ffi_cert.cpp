@@ -969,8 +969,6 @@ int botan_x509_cert_options_create_common(
 #endif
 }
 
-// // int botan_x509_cert_options_set_common_name
-
 int botan_x509_cert_options_set_common_name(
    botan_x509_cert_options_t opts,
    const char* common_name 
@@ -1021,7 +1019,7 @@ int botan_x509_cert_options_set_org_unit(
 
 int botan_x509_cert_options_set_more_org_units(
    botan_x509_cert_options_t opts,
-   const char** more_org_units, size_t* more_org_units_len
+   const char** more_org_units, size_t more_org_units_len
 ) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;
@@ -1117,7 +1115,7 @@ int botan_x509_cert_options_set_dns(
 
 int botan_x509_cert_options_set_more_dns(
    botan_x509_cert_options_t opts,
-   const char** more_dns, size_t* more_dns_len
+   const char** more_dns, size_t more_dns_len
 ) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;

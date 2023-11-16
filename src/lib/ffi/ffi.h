@@ -2227,7 +2227,7 @@ int botan_x509_create_self_signed_cert(
 **************************/
 
 // NOTE: This is a /support object/, not really part of the X509 spec
-// but used to create them.
+// but used to create them (eg, distinguished names mostly).
 
 // TODO: Cert options struct members and functions
 // NOTE: Using c strings for now instead of byte arrays - need to discuss
@@ -2247,9 +2247,6 @@ int botan_x509_cert_options_create_common(
    const char* org_unit,
    uint32_t expiration_time
 );
-
-// BOTAN_FFI_EXPORT(3,3)
-// int botan_x509_cert_options_set_common_name
 
 BOTAN_FFI_EXPORT(3,3)
 int botan_x509_cert_options_set_common_name(
@@ -2278,7 +2275,7 @@ int botan_x509_cert_options_set_org_unit(
 BOTAN_FFI_EXPORT(3,3)
 int botan_x509_cert_options_set_more_org_units(
    botan_x509_cert_options_t opts,
-   const char** more_org_units, size_t* more_org_units_len
+   const char** more_org_units, size_t more_org_units_len
 );
 
 BOTAN_FFI_EXPORT(3,3)
@@ -2326,7 +2323,7 @@ int botan_x509_cert_options_set_dns(
 BOTAN_FFI_EXPORT(3,3)
 int botan_x509_cert_options_set_more_dns(
    botan_x509_cert_options_t opts,
-   const char** more_dns, size_t* more_dns_len
+   const char** more_dns, size_t more_dns_len
 );
 
 BOTAN_FFI_EXPORT(3,3)
