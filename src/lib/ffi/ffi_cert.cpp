@@ -947,7 +947,17 @@ int botan_x509_cert_options_destroy(botan_x509_cert_options_t opts) {
 int botan_x509_cert_options_create(
    botan_x509_cert_options_t* opts) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+
+   if(opts == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
+
+   return ffi_guard_thunk(__func__, [=]() -> int {
+      auto opts_obj = std::make_unique<Botan::X509_Cert_Options>();
+      *opts = new botan_x509_cert_options_struct(std::move(opts_obj));
+      return BOTAN_FFI_SUCCESS;
+   });
+   
 #else
    // TODO: BOTAN_UNUSED(...)
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
@@ -962,60 +972,135 @@ int botan_x509_cert_options_create_common(
    const char* org_unit,
    uint32_t expiration_time) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+
+   if(opts == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
+
+   return ffi_guard_thunk(__func__, [=]() -> int {
+      auto opts_obj = std::make_unique<Botan::X509_Cert_Options>();
+
+      // TODO: Ensure copy / casting to string / transfer of ownership
+      if (common_name != nullptr) {
+         opts_obj->common_name =  std::string(common_name);
+      }
+      if (country != nullptr) {
+         opts_obj->country =  std::string(country);
+      }
+      if (org != nullptr) {
+         opts_obj->organization =  std::string(org);
+      }
+      if (org_unit != nullptr) {
+         opts_obj->org_unit =  std::string(org_unit);
+      }
+
+      // TODO: Set expiration time
+      // if (expiration_time != 0) {
+      //    opts_obj->start = now;
+      //    opts_obj->end = now + expiration_time;
+      // }
+
+      *opts = new botan_x509_cert_options_struct(std::move(opts_obj));
+      return BOTAN_FFI_SUCCESS;
+   });
+
 #else
    // TODO: BOTAN_UNUSED(...)
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
 
-int botan_x509_cert_options_set_common_name(
-   botan_x509_cert_options_t opts,
-   const char* common_name 
-) {
+// TODO: String owndership / handling / conventions:
+//
+// explicit std::string(foo) vs foo
+//
+// if (foo != nullptr) { obj.foo = foo; }
+//    vs
+//       obj.foo = foo ? foo : "";
+//
+// auto vs explicit types
+
+#define BOTAN_FFI_IMPL_FIELD_SETTER(NAME,FIELD,TYPE,SETFIELD)  \
+   int botan_ ## NAME ## _set_ ## FIELD(                       \
+      botan_ ## NAME ## _t NAME ## _obj,                       \
+      TYPE FIELD                                               \
+   ) {                                                         \
+         return BOTAN_FFI_VISIT(NAME ## _obj, [=](auto& obj) { \
+            SETFIELD                                           \
+         });                                                   \
+   }
+
+
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
-#else
-   // TODO: BOTAN_UNUSED(...)
-   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
-#endif
-}
 
-int botan_x509_cert_options_set_country(
-   botan_x509_cert_options_t opts,
-   const char* country 
-) {
-#if defined(BOTAN_HAS_X509_CERTIFICATES)
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
-#else
-   // TODO: BOTAN_UNUSED(...)
-   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
-#endif
-}
+#define BOTAN_FFI_IMPL_FIELD_SETTER_CSTRING(NAME,FIELD)     \
+   BOTAN_FFI_IMPL_FIELD_SETTER(NAME,FIELD, const char*, {   \
+      obj.FIELD = FIELD ? FIELD : "";                       \
+      return BOTAN_FFI_SUCCESS;                             \
+   })
 
+// #define BOTAN_FFI_IMPL_FIELD_SETTER_CSTRING(NAME,FIELD)        \
+//    int botan_ ## NAME ## _set_ ## FIELD(                       \
+//       botan_ ## NAME ## _t NAME ## _obj,                       \
+//       const char* FIELD                                        \
+//    ) {                                                         \
+//          return BOTAN_FFI_VISIT(NAME ## _obj, [=](auto& obj) { \
+//             obj.FIELD = FIELD ? FIELD : "";                    \
+//             return BOTAN_FFI_SUCCESS;                          \
+//          });                                                   \
+//    }
+
+#else
+
+#define BOTAN_FFI_IMPL_FIELD_SETTER_CSTRING(NAME,FIELD)        \
+   int NAME ## _set_ ## FIELD ## (                             \
+      NAME ## _t NAME ## _obj,                                 \
+      const char* FIELD                                        \
+   ) {                                                         \
+      BOTAN_UNUSED(NAME ## _obj, FIELD);                       \
+      return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;                  \
+   }
+
+#endif
+
+// NOTE: Using a define, vs copy-pasting the same code
+// int botan_x509_cert_options_set_common_name(
+//    botan_x509_cert_options_t opts,
+//    const char* common_name 
+// ) {
+// #if defined(BOTAN_HAS_X509_CERTIFICATES)
+//    // return BOTAN_FFI_VISIT(opts, [=](auto& opts_obj) {
+//    return BOTAN_FFI_VISIT(opts, [=](Botan::X509_Cert_Options& opts_obj) {
+//       opts_obj.common_name = common_name ? common_name : "";
+//       return BOTAN_FFI_SUCCESS;
+//    });
+// #else
+//    // TODO: BOTAN_UNUSED(...)
+//    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+// #endif
+// }
+
+BOTAN_FFI_IMPL_FIELD_SETTER_CSTRING(x509_cert_options,common_name);
+BOTAN_FFI_IMPL_FIELD_SETTER_CSTRING(x509_cert_options,country);
+
+// NOTE: Because org vs organization
 int botan_x509_cert_options_set_org(
    botan_x509_cert_options_t opts,
-   const char* org
+   const char* org 
 ) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+   // return BOTAN_FFI_VISIT(opts, [=](auto& opts_obj) {
+   return BOTAN_FFI_VISIT(opts, [=](Botan::X509_Cert_Options& opts_obj) {
+      opts_obj.organization = org ? org : "";
+      return BOTAN_FFI_SUCCESS;
+   });
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(opts,org);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
 
-int botan_x509_cert_options_set_org_unit(
-   botan_x509_cert_options_t opts,
-   const char* org_unit 
-) {
-#if defined(BOTAN_HAS_X509_CERTIFICATES)
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
-#else
-   // TODO: BOTAN_UNUSED(...)
-   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
-#endif
-}
+BOTAN_FFI_IMPL_FIELD_SETTER_CSTRING(x509_cert_options,org_unit);
 
 int botan_x509_cert_options_set_more_org_units(
    botan_x509_cert_options_t opts,
@@ -1029,89 +1114,13 @@ int botan_x509_cert_options_set_more_org_units(
 #endif
 }
 
-int botan_x509_cert_options_set_locality(
-   botan_x509_cert_options_t opts,
-   const char* locality 
-) {
-#if defined(BOTAN_HAS_X509_CERTIFICATES)
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
-#else
-   // TODO: BOTAN_UNUSED(...)
-   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
-#endif
-}
-
-int botan_x509_cert_options_set_state(
-   botan_x509_cert_options_t opts,
-   const char* state 
-) {
-#if defined(BOTAN_HAS_X509_CERTIFICATES)
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
-#else
-   // TODO: BOTAN_UNUSED(...)
-   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
-#endif
-}
-
-int botan_x509_cert_options_set_serial_number(
-   botan_x509_cert_options_t opts,
-   const char* serial_number 
-) {
-#if defined(BOTAN_HAS_X509_CERTIFICATES)
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
-#else
-   // TODO: BOTAN_UNUSED(...)
-   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
-#endif
-}
-
-int botan_x509_cert_options_set_email(
-   botan_x509_cert_options_t opts,
-   const char* email 
-) {
-#if defined(BOTAN_HAS_X509_CERTIFICATES)
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
-#else
-   // TODO: BOTAN_UNUSED(...)
-   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
-#endif
-}
-
-int botan_x509_cert_options_set_uri(
-   botan_x509_cert_options_t opts,
-   const char* uri 
-) {
-#if defined(BOTAN_HAS_X509_CERTIFICATES)
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
-#else
-   // TODO: BOTAN_UNUSED(...)
-   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
-#endif
-}
-
-int botan_x509_cert_options_set_ip(
-   botan_x509_cert_options_t opts,
-   const char* ip 
-) {
-#if defined(BOTAN_HAS_X509_CERTIFICATES)
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
-#else
-   // TODO: BOTAN_UNUSED(...)
-   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
-#endif
-}
-
-int botan_x509_cert_options_set_dns(
-   botan_x509_cert_options_t opts,
-   const char* dns 
-) {
-#if defined(BOTAN_HAS_X509_CERTIFICATES)
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
-#else
-   // TODO: BOTAN_UNUSED(...)
-   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
-#endif
-}
+BOTAN_FFI_IMPL_FIELD_SETTER_CSTRING(x509_cert_options,locality);
+BOTAN_FFI_IMPL_FIELD_SETTER_CSTRING(x509_cert_options,state);
+BOTAN_FFI_IMPL_FIELD_SETTER_CSTRING(x509_cert_options,serial_number);
+BOTAN_FFI_IMPL_FIELD_SETTER_CSTRING(x509_cert_options,email);
+BOTAN_FFI_IMPL_FIELD_SETTER_CSTRING(x509_cert_options,uri);
+BOTAN_FFI_IMPL_FIELD_SETTER_CSTRING(x509_cert_options,ip);
+BOTAN_FFI_IMPL_FIELD_SETTER_CSTRING(x509_cert_options,dns);
 
 int botan_x509_cert_options_set_more_dns(
    botan_x509_cert_options_t opts,
@@ -1125,29 +1134,8 @@ int botan_x509_cert_options_set_more_dns(
 #endif
 }
 
-int botan_x509_cert_options_set_xmpp(
-   botan_x509_cert_options_t opts,
-   const char* xmpp 
-) {
-#if defined(BOTAN_HAS_X509_CERTIFICATES)
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
-#else
-   // TODO: BOTAN_UNUSED(...)
-   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
-#endif
-}
-
-int botan_x509_cert_options_set_challenge(
-   botan_x509_cert_options_t opts,
-   const char* challenge 
-) {
-#if defined(BOTAN_HAS_X509_CERTIFICATES)
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
-#else
-   // TODO: BOTAN_UNUSED(...)
-   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
-#endif
-}
+BOTAN_FFI_IMPL_FIELD_SETTER_CSTRING(x509_cert_options,xmpp);
+BOTAN_FFI_IMPL_FIELD_SETTER_CSTRING(x509_cert_options,challenge);
 
 // Or _set_not_before
 int botan_x509_cert_options_set_start(

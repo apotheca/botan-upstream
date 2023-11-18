@@ -2229,9 +2229,12 @@ int botan_x509_create_self_signed_cert(
 // NOTE: This is a /support object/, not really part of the X509 spec
 // but used to create them (eg, distinguished names mostly).
 
-// TODO: Cert options struct members and functions
 // NOTE: Using c strings for now instead of byte arrays - need to discuss
 // This is inconsistent with distinguished names being of arbitrary encoding
+// and potentially allowing null bytes.
+// CONFIRMED-ish: -ish because X509 inherits types from ASN1:
+// https://letsencrypt.org/docs/a-warm-welcome-to-asn1-and-der/
+// So we need to convert these from const char* to const uint8_t* + size_t
 
 BOTAN_FFI_EXPORT(3,3)
 int botan_x509_cert_options_create(
