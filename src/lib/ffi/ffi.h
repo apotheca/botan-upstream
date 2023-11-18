@@ -2246,7 +2246,7 @@ int botan_x509_cert_options_create_common(
    botan_x509_cert_options_t* opts,
    const char* common_name,
    const char* country,
-   const char* org,
+   const char* organization,
    const char* org_unit,
    uint32_t expiration_time
 );
@@ -2264,9 +2264,9 @@ int botan_x509_cert_options_set_country(
 );
 
 BOTAN_FFI_EXPORT(3,3)
-int botan_x509_cert_options_set_org(
+int botan_x509_cert_options_set_organization(
    botan_x509_cert_options_t opts,
-   const char* org
+   const char* organization
 );
 
 BOTAN_FFI_EXPORT(3,3)

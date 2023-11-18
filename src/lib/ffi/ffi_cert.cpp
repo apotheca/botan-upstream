@@ -968,7 +968,7 @@ int botan_x509_cert_options_create_common(
    botan_x509_cert_options_t* opts,
    const char* common_name,
    const char* country,
-   const char* org,
+   const char* organization,
    const char* org_unit,
    uint32_t expiration_time) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
@@ -981,14 +981,18 @@ int botan_x509_cert_options_create_common(
       auto opts_obj = std::make_unique<Botan::X509_Cert_Options>();
 
       // TODO: Ensure copy / casting to string / transfer of ownership
+      // NOTE: May be able to replace with:
+      // opts_obj->field =  field ? std::string(field) : "";
+      // or even with autocasting (need to verify, I don't like to assume):
+      // opts_obj->field =  field ? field : "";
       if (common_name != nullptr) {
          opts_obj->common_name =  std::string(common_name);
       }
       if (country != nullptr) {
          opts_obj->country =  std::string(country);
       }
-      if (org != nullptr) {
-         opts_obj->organization =  std::string(org);
+      if (organization != nullptr) {
+         opts_obj->organization =  std::string(organization);
       }
       if (org_unit != nullptr) {
          opts_obj->org_unit =  std::string(org_unit);
@@ -1018,7 +1022,7 @@ int botan_x509_cert_options_create_common(
 //    vs
 //       obj.foo = foo ? foo : "";
 //
-// auto vs explicit types
+// auto vs explicit types - auto is fine, but explicit is better for hinting
 
 #define BOTAN_FFI_IMPL_FIELD_SETTER(NAME,FIELD,TYPE,SETFIELD)  \
    int botan_ ## NAME ## _set_ ## FIELD(                       \
@@ -1082,24 +1086,7 @@ int botan_x509_cert_options_create_common(
 
 BOTAN_FFI_IMPL_FIELD_SETTER_CSTRING(x509_cert_options,common_name);
 BOTAN_FFI_IMPL_FIELD_SETTER_CSTRING(x509_cert_options,country);
-
-// NOTE: Because org vs organization
-int botan_x509_cert_options_set_org(
-   botan_x509_cert_options_t opts,
-   const char* org 
-) {
-#if defined(BOTAN_HAS_X509_CERTIFICATES)
-   // return BOTAN_FFI_VISIT(opts, [=](auto& opts_obj) {
-   return BOTAN_FFI_VISIT(opts, [=](Botan::X509_Cert_Options& opts_obj) {
-      opts_obj.organization = org ? org : "";
-      return BOTAN_FFI_SUCCESS;
-   });
-#else
-   BOTAN_UNUSED(opts,org);
-   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
-#endif
-}
-
+BOTAN_FFI_IMPL_FIELD_SETTER_CSTRING(x509_cert_options,organization);
 BOTAN_FFI_IMPL_FIELD_SETTER_CSTRING(x509_cert_options,org_unit);
 
 int botan_x509_cert_options_set_more_org_units(
