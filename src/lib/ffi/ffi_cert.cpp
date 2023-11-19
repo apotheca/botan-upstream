@@ -1024,48 +1024,38 @@ int botan_x509_cert_options_create_common(
 //
 // auto vs explicit types - auto is fine, but explicit is better for hinting
 
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+
+// TODO: Should probably be NAME,TYPE,FIELD,...
 #define BOTAN_FFI_IMPL_FIELD_SETTER(NAME,FIELD,TYPE,SETFIELD)  \
    int botan_ ## NAME ## _set_ ## FIELD(                       \
       botan_ ## NAME ## _t NAME ## _obj,                       \
       TYPE FIELD                                               \
    ) {                                                         \
-         return BOTAN_FFI_VISIT(NAME ## _obj, [=](auto& obj) { \
-            SETFIELD                                           \
-         });                                                   \
+      return BOTAN_FFI_VISIT(NAME ## _obj, [=](auto& obj) {    \
+         SETFIELD                                              \
+      });                                                      \
    }
 
+#else
 
-#if defined(BOTAN_HAS_X509_CERTIFICATES)
+// TODO: Should probably be NAME,TYPE,FIELD,...
+#define BOTAN_FFI_IMPL_FIELD_SETTER(NAME,FIELD,TYPE,SETFIELD)  \
+   int botan_ ## NAME ## _set_ ## FIELD(                       \
+      botan_ ## NAME ## _t NAME ## _obj,                       \
+      TYPE FIELD                                               \
+   ) {                                                         \
+      BOTAN_UNUSED(NAME ## _obj, FIELD);                       \
+      return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;                  \                                                \
+   }
+
+#endif
 
 #define BOTAN_FFI_IMPL_FIELD_SETTER_CSTRING(NAME,FIELD)     \
    BOTAN_FFI_IMPL_FIELD_SETTER(NAME,FIELD, const char*, {   \
       obj.FIELD = FIELD ? FIELD : "";                       \
       return BOTAN_FFI_SUCCESS;                             \
    })
-
-// #define BOTAN_FFI_IMPL_FIELD_SETTER_CSTRING(NAME,FIELD)        \
-//    int botan_ ## NAME ## _set_ ## FIELD(                       \
-//       botan_ ## NAME ## _t NAME ## _obj,                       \
-//       const char* FIELD                                        \
-//    ) {                                                         \
-//          return BOTAN_FFI_VISIT(NAME ## _obj, [=](auto& obj) { \
-//             obj.FIELD = FIELD ? FIELD : "";                    \
-//             return BOTAN_FFI_SUCCESS;                          \
-//          });                                                   \
-//    }
-
-#else
-
-#define BOTAN_FFI_IMPL_FIELD_SETTER_CSTRING(NAME,FIELD)        \
-   int NAME ## _set_ ## FIELD ## (                             \
-      NAME ## _t NAME ## _obj,                                 \
-      const char* FIELD                                        \
-   ) {                                                         \
-      BOTAN_UNUSED(NAME ## _obj, FIELD);                       \
-      return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;                  \
-   }
-
-#endif
 
 // NOTE: Using a define, vs copy-pasting the same code
 // int botan_x509_cert_options_set_common_name(
@@ -1089,14 +1079,21 @@ BOTAN_FFI_IMPL_FIELD_SETTER_CSTRING(x509_cert_options,country);
 BOTAN_FFI_IMPL_FIELD_SETTER_CSTRING(x509_cert_options,organization);
 BOTAN_FFI_IMPL_FIELD_SETTER_CSTRING(x509_cert_options,org_unit);
 
+// TODO: Replaced copied setters with define for array
 int botan_x509_cert_options_set_more_org_units(
    botan_x509_cert_options_t opts,
    const char** more_org_units, size_t more_org_units_len
 ) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+   return BOTAN_FFI_VISIT(opts, [=](Botan::X509_Cert_Options& opts_obj) {
+      opts_obj.more_org_units = std::vector<std::string>(
+         more_org_units,
+         more_org_units + more_org_units_len
+      );
+      return BOTAN_FFI_SUCCESS;
+   });
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(opts,more_org_units,more_org_units_len);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -1114,9 +1111,15 @@ int botan_x509_cert_options_set_more_dns(
    const char** more_dns, size_t more_dns_len
 ) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+   return BOTAN_FFI_VISIT(opts, [=](Botan::X509_Cert_Options& opts_obj) {
+      opts_obj.more_dns = std::vector<std::string>(
+         more_dns,
+         more_dns + more_dns_len
+      );
+      return BOTAN_FFI_SUCCESS;
+   });
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(opts,more_dns,more_dns_len);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -1124,83 +1127,43 @@ int botan_x509_cert_options_set_more_dns(
 BOTAN_FFI_IMPL_FIELD_SETTER_CSTRING(x509_cert_options,xmpp);
 BOTAN_FFI_IMPL_FIELD_SETTER_CSTRING(x509_cert_options,challenge);
 
-// Or _set_not_before
-int botan_x509_cert_options_set_start(
-   botan_x509_cert_options_t opts,
-   uint64_t start
-) {
-#if defined(BOTAN_HAS_X509_CERTIFICATES)
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
-#else
-   // TODO: BOTAN_UNUSED(...)
-   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
-#endif
-}
+BOTAN_FFI_IMPL_FIELD_SETTER(x509_cert_options,start,uint64_t,{
+   auto seconds = std::chrono::seconds(start);
+   auto duration = std::chrono::duration_cast<std::chrono::system_clock::time_point::duration>(seconds);
+   auto tp = std::chrono::system_clock::time_point(duration);
+   obj.start = Botan::X509_Time(tp);
+   return BOTAN_FFI_SUCCESS;
+});
 
-// Or _set_not_after
-int botan_x509_cert_options_set_end(
-   botan_x509_cert_options_t opts,
-   uint64_t end
-) {
-#if defined(BOTAN_HAS_X509_CERTIFICATES)
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
-#else
-   // TODO: BOTAN_UNUSED(...)
-   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
-#endif
-}
+BOTAN_FFI_IMPL_FIELD_SETTER(x509_cert_options,end,uint64_t,{
+   auto seconds = std::chrono::seconds(end);
+   auto duration = std::chrono::duration_cast<std::chrono::system_clock::time_point::duration>(seconds);
+   auto tp = std::chrono::system_clock::time_point(duration);
+   obj.end = Botan::X509_Time(tp);
+   return BOTAN_FFI_SUCCESS;
+});
 
 // TODO: Convenience functions for set_start_duration, set_expires
 
-int botan_x509_cert_options_set_is_ca(
-   botan_x509_cert_options_t opts,
-   bool is_CA
-) {
-#if defined(BOTAN_HAS_X509_CERTIFICATES)
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
-#else
-   // TODO: BOTAN_UNUSED(...)
-   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
-#endif
-}
+BOTAN_FFI_IMPL_FIELD_SETTER(x509_cert_options,is_ca,bool,{
+   obj.is_CA = is_ca;
+   return BOTAN_FFI_SUCCESS;
+});
 
-int botan_x509_cert_options_set_path_limit(
-   botan_x509_cert_options_t opts,
-   size_t path_limit
-) {
-#if defined(BOTAN_HAS_X509_CERTIFICATES)
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
-#else
-   // TODO: BOTAN_UNUSED(...)
-   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
-#endif
-}
+BOTAN_FFI_IMPL_FIELD_SETTER(x509_cert_options,path_limit,size_t,{
+   obj.path_limit = path_limit;
+   return BOTAN_FFI_SUCCESS;
+});
 
-int botan_x509_cert_options_set_padding_scheme(
-   botan_x509_cert_options_t opts,
-   const char* padding_scheme
-) {
-#if defined(BOTAN_HAS_X509_CERTIFICATES)
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
-#else
-   // TODO: BOTAN_UNUSED(...)
-   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
-#endif
-}
+// NOTE: May validly be a string and not need be changed to uint8_t** + size_t
+BOTAN_FFI_IMPL_FIELD_SETTER_CSTRING(x509_cert_options,padding_scheme);
 
 // Or _set_key_usage
 // NOTE: key constraints use unsigned int in ffi, definitely need to give it something proper
-int botan_x509_cert_options_set_key_constraints(
-   botan_x509_cert_options_t opts,
-   unsigned int constraints
-) {
-#if defined(BOTAN_HAS_X509_CERTIFICATES)
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
-#else
-   // TODO: BOTAN_UNUSED(...)
-   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
-#endif
-}
+BOTAN_FFI_IMPL_FIELD_SETTER(x509_cert_options,key_constraints,unsigned int,{
+   obj.constraints = static_cast<Botan::Key_Constraints>(key_constraints);
+   return BOTAN_FFI_SUCCESS;
+});
 
 // NOTE: Technically should take OIDs but no data type for that
 // TODO: Create list / spreadsheet of FFI data type mappings
@@ -1209,24 +1172,30 @@ int botan_x509_cert_options_set_ex_constraints(
    const char** ex_constraints, size_t ex_constraints_len
 ) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+   return BOTAN_FFI_VISIT(opts, [=](Botan::X509_Cert_Options& opts_obj) {
+      // TODO: Probably throw a BAD_PARAMETER on failing OID parse
+      std::vector<Botan::OID> oids;
+      std::transform(
+         ex_constraints,
+         ex_constraints + ex_constraints_len,
+         oids.begin(),
+         [](const char* ex_constraint) {
+            return Botan::OID::from_string(std::string(ex_constraint));
+         }
+      );
+      opts_obj.ex_constraints = oids;
+      return BOTAN_FFI_SUCCESS;
+   });
 #else
    // TODO: BOTAN_UNUSED(...)
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
 
-int botan_x509_cert_options_set_extensions(
-   botan_x509_cert_options_t opts,
-   botan_x509_exts_t exts
-) {
-#if defined(BOTAN_HAS_X509_CERTIFICATES)
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
-#else
-   // TODO: BOTAN_UNUSED(...)
-   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
-#endif
-}
+BOTAN_FFI_IMPL_FIELD_SETTER(x509_cert_options,extensions,botan_x509_exts_t,{
+   obj.extensions = safe_get(extensions);
+   return BOTAN_FFI_SUCCESS;
+});
 
 /*
 * X.509 Certificate Store

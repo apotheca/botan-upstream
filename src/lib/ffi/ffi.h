@@ -2235,6 +2235,11 @@ int botan_x509_create_self_signed_cert(
 // CONFIRMED-ish: -ish because X509 inherits types from ASN1:
 // https://letsencrypt.org/docs/a-warm-welcome-to-asn1-and-der/
 // So we need to convert these from const char* to const uint8_t* + size_t
+// using find: const char\* (\w+) and replace: const uint8_t $1[], size_t $1_len
+// Except the C++ does use std:: string which is vector<char>, so we either ought
+// to keep it as strings, or use cast_char_ptr_to_uint8 or cast_uint8_ptr_to_char
+// so the question is, does botan support null characters in distinguished names
+// in x509 certificate option fields, which are std::string type?
 
 BOTAN_FFI_EXPORT(3,3)
 int botan_x509_cert_options_create(
@@ -2278,6 +2283,7 @@ int botan_x509_cert_options_set_org_unit(
 BOTAN_FFI_EXPORT(3,3)
 int botan_x509_cert_options_set_more_org_units(
    botan_x509_cert_options_t opts,
+   // Or maybe char const * const * is better?
    const char** more_org_units, size_t more_org_units_len
 );
 
