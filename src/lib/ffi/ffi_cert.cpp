@@ -46,16 +46,17 @@ int botan_x509_dn_destroy(botan_x509_dn_t dn) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
    return BOTAN_FFI_CHECKED_DELETE(dn);
 #else
-   BOTAN_UNUSED(crl);
+   BOTAN_UNUSED(dn);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
 
 int botan_x509_dn_create(botan_x509_dn_t* dn) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
+   BOTAN_UNUSED(dn);
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(dn);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -67,9 +68,10 @@ int botan_x509_dn_create_from_multimap(
    size_t count
    ) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
+   BOTAN_UNUSED(dn,keys,key_lens,vals,val_lens,count);
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(dn,keys,key_lens,vals,val_lens,count);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -78,9 +80,10 @@ int botan_x509_dn_to_string(
    uint8_t out[], size_t* out_len,
    botan_x509_dn_t dn) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
+   BOTAN_UNUSED(out,out_len,dn);
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(out,out_len,dn);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -89,9 +92,10 @@ int botan_x509_dn_has_field(
    botan_x509_dn_t dn,
    const uint8_t key[], size_t key_len) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
+   BOTAN_UNUSED(dn,key,key_len);
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(dn,key,key_len);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -101,9 +105,10 @@ int botan_x509_dn_get_first_attribute(
    botan_x509_dn_t dn,
    const uint8_t key[], size_t key_len) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
+   BOTAN_UNUSED(out,out_len,dn,key,key_len);
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(out,out_len,dn,key,key_len);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -113,9 +118,10 @@ int botan_x509_dn_get_attribute(
    botan_x509_dn_t dn,
    const uint8_t key[], size_t key_len) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
+   BOTAN_UNUSED(vals,val_sizes,val_count,dn,key,key_len);
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(vals,val_sizes,val_count,dn,key,key_len);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -124,9 +130,10 @@ int botan_x509_dn_contents(
    uint8_t** keys, size_t* key_sizes, uint8_t** vals, size_t* val_sizes, size_t* count,
    botan_x509_dn_t dn) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
+   BOTAN_UNUSED(keys,key_sizes,vals,val_sizes,count,dn);
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(keys,key_sizes,vals,val_sizes,count,dn);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -136,9 +143,10 @@ int botan_x509_dn_add_attribute(
    const uint8_t key[], size_t key_len,
    const uint8_t val[], size_t val_len) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
+   BOTAN_UNUSED(dn,key,key_len,val,val_len);
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(dn,key,key_len,val,val_len);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -159,7 +167,7 @@ int botan_x509_cert_ext_destroy(botan_x509_cert_ext_t ext) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
    return BOTAN_FFI_CHECKED_DELETE(ext);
 #else
-   BOTAN_UNUSED(ca);
+   BOTAN_UNUSED(ext);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -168,7 +176,7 @@ int botan_x509_exts_destroy(botan_x509_exts_t exts) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
    return BOTAN_FFI_CHECKED_DELETE(exts);
 #else
-   BOTAN_UNUSED(ca);
+   BOTAN_UNUSED(exts);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -274,9 +282,10 @@ int botan_x509_cert_issuer_dn(
    const char* key,
    size_t index) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
+   BOTAN_UNUSED(dn,cert,key,index);
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(dn,cert,key,index);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -298,9 +307,10 @@ int botan_x509_cert_subject_dn(
    const char* key,
    size_t index) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
+   BOTAN_UNUSED(dn,cert,key,index);
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(dn,cert,key,index);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -673,7 +683,7 @@ int botan_x509_crl_entry_destroy(botan_x509_crl_entry_t entry) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
    return BOTAN_FFI_CHECKED_DELETE(entry);
 #else
-   BOTAN_UNUSED(crl);
+   BOTAN_UNUSED(entry);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -683,9 +693,10 @@ int botan_x509_crl_entry_create(
    botan_x509_cert_t cert,
    uint32_t reason_code) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
+   BOTAN_UNUSED(entry,cert,reason_code);
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(entry,cert,reason_code);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -694,9 +705,10 @@ int botan_x509_crl_entry_get_serial_number(
    uint8_t out[], size_t* out_len,
    botan_x509_crl_entry_t entry) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
+   BOTAN_UNUSED(out,out_len,entry);
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(out,out_len,entry);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -705,9 +717,10 @@ int botan_x509_crl_entry_get_expire_time(
    uint64_t* expire_time,
    botan_x509_crl_entry_t entry) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
+   BOTAN_UNUSED(expire_time,entry);
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(expire_time,entry);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -716,9 +729,10 @@ int botan_x509_crl_entry_get_reason_code(
    uint32_t* reason_code,
    botan_x509_crl_entry_t entry) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
+   BOTAN_UNUSED(reason_code,entry);
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(reason_code,entry);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -727,9 +741,10 @@ int botan_x509_crl_entry_get_extensions(
    botan_x509_exts_t* exts,
    botan_x509_crl_entry_t entry) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
+   BOTAN_UNUSED(exts,entry);
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(exts,entry);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -778,7 +793,7 @@ int botan_x509_ca_create(
    // the handbook.
    return botan_x509_ca_create_padding(ca, cert, key, hash_fn, "", rng);
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(ca,cert,key,hash_fn,rng);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -824,7 +839,7 @@ int botan_x509_ca_create_padding(
    });
 
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(ca,cert,key,hash_fn,padding_fn,rng);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -837,9 +852,10 @@ int botan_x509_ca_sign_request(
    uint64_t not_before,
    uint64_t not_after) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
+   BOTAN_UNUSED(cert,ca,csr,rng,not_before,not_after);
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(cert,ca,csr,rng,not_before,not_after);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -857,9 +873,12 @@ int botan_x509_ca_make_cert_serial(
    const uint8_t subject_dn[], size_t subject_dn_len,
    botan_x509_exts_t exts) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
+   BOTAN_UNUSED(cert,signer,rng,serial_number,sig_algo,key,not_before,not_after);
+   BOTAN_UNUSED(issuer_dn,issuer_dn_len,subject_dn,subject_dn_len,exts);
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(cert,signer,rng,serial_number,sig_algo,key,not_before,not_after);
+   BOTAN_UNUSED(issuer_dn,issuer_dn_len,subject_dn,subject_dn_len,exts);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -870,9 +889,10 @@ int botan_x509_ca_choose_extensions(
    botan_x509_cert_t ca_cert,
    const char* hash_fn) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
+   BOTAN_UNUSED(exts,csr,ca_cert,hash_fn);
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(exts,csr,ca_cert,hash_fn);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -894,9 +914,10 @@ int botan_x509_create_cert_req(
    const char* hash_fn,
    botan_rng_t rng) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
+   BOTAN_UNUSED(csr,opts,key,hash_fn,rng);
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(csr,opts,key,hash_fn,rng);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -911,9 +932,10 @@ int botan_x509_csr_create(
    const char* padding_fn,
    const char* challenge) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
+   BOTAN_UNUSED(csr,key,subject_dn,subject_dn_len,extensions,hash_fn,rng,padding_fn,challenge);
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(csr,key,subject_dn,subject_dn_len,extensions,hash_fn,rng,padding_fn,challenge);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -925,9 +947,10 @@ int botan_x509_create_self_signed_cert(
    const char* hash_fn,
    botan_rng_t rng) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
+   BOTAN_UNUSED(cert,opts,key,hash_fn,rng);
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(cert,opts,key,hash_fn,rng);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -940,7 +963,7 @@ int botan_x509_cert_options_destroy(botan_x509_cert_options_t opts) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
    return BOTAN_FFI_CHECKED_DELETE(opts);
 #else
-   BOTAN_UNUSED(ca);
+   BOTAN_UNUSED(opts);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -960,7 +983,7 @@ int botan_x509_cert_options_create(
    });
    
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(opts);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -1004,13 +1027,14 @@ int botan_x509_cert_options_create_common(
       //    opts_obj->start = now;
       //    opts_obj->end = now + expiration_time;
       // }
+      BOTAN_UNUSED(expiration_time);
 
       *opts = new botan_x509_cert_options_struct(std::move(opts_obj));
       return BOTAN_FFI_SUCCESS;
    });
 
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(opts,common_name,country,organization,org_unit);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -1070,7 +1094,7 @@ int botan_x509_cert_options_create_common(
 //       return BOTAN_FFI_SUCCESS;
 //    });
 // #else
-//    // TODO: BOTAN_UNUSED(...)
+//    BOTAN_UNUSED(opts,common_name);
 //    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 // #endif
 // }
@@ -1188,7 +1212,7 @@ int botan_x509_cert_options_set_ex_constraints(
       return BOTAN_FFI_SUCCESS;
    });
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(opts,ex_constraints,ex_constraints_len);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -1212,7 +1236,7 @@ int botan_x509_cert_store_destroy(botan_x509_cert_store_t cert_store) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
    return BOTAN_FFI_CHECKED_DELETE(cert_store);
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(cert_store);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -1224,9 +1248,10 @@ int botan_x509_cert_store_find_cert(
    const uint8_t subject_dn[], size_t subject_dn_len,
    const uint8_t key_id[], size_t key_id_len) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
+   BOTAN_UNUSED(cert,cert_store,subject_dn,subject_dn_len,key_id,key_id_len);
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(cert,cert_store,subject_dn,subject_dn_len,key_id,key_id_len);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -1239,9 +1264,10 @@ int botan_x509_cert_store_find_all_certs(
    const uint8_t subject_dn[], size_t subject_dn_len,
    const uint8_t key_id[], size_t key_id_len) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
+   BOTAN_UNUSED(certs,certs_len,cert_store,subject_dn,subject_dn_len,key_id,key_id_len);
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(certs,certs_len,cert_store,subject_dn,subject_dn_len,key_id,key_id_len);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -1253,9 +1279,10 @@ int botan_x509_cert_store_find_cert_by_pubkey_sha1(
    // NOTE: SHA1 hash length is static, so we can just drop the size_t
    const uint8_t key_hash[]) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
+   BOTAN_UNUSED(cert,cert_store,key_hash);
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(cert,cert_store,key_hash);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -1267,9 +1294,10 @@ int botan_x509_cert_store_find_cert_by_raw_subject_dn_sha256(
    // NOTE: SHA1 hash length is static, so we can just drop the size_t
    const uint8_t subject_hash[]) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
+   BOTAN_UNUSED(cert,cert_store,subject_hash);
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(cert,cert_store,subject_hash);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -1280,9 +1308,10 @@ int botan_x509_cert_store_find_crl_for(
    botan_x509_cert_store_t cert_store,
    botan_x509_cert_t cert) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
+   BOTAN_UNUSED(crl,cert_store,cert);
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(crl,cert_store,cert);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -1292,9 +1321,10 @@ int botan_x509_cert_store_certificate_known(
    botan_x509_cert_store_t cert_store,
    botan_x509_cert_t cert) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
+   BOTAN_UNUSED(cert_store,cert);
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(cert_store,cert);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -1453,7 +1483,7 @@ int botan_x509_cert_store_sql_insert_cert(
    });
 
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(cert_store,cert);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -1477,7 +1507,7 @@ int botan_x509_cert_store_sql_remove_cert(
    });
 
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(cert_store,cert);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -1512,8 +1542,7 @@ int botan_x509_cert_store_sql_find_key(
       }
    });
 
-#else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(key,cert_store,cert);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -1570,7 +1599,7 @@ int botan_x509_cert_store_sql_insert_key(
    });
 
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(cert_store,cert,key);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -1591,7 +1620,7 @@ int botan_x509_cert_store_sql_remove_key(
    });
 
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(cert_store,key);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -1636,7 +1665,7 @@ int botan_x509_cert_store_sql_affirm_cert(
    });
 
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(cert_store,cert);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -1665,7 +1694,7 @@ int botan_x509_cert_store_sql_generate_crls(
    });
 
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(crls,crls_len,cert_store);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -1698,6 +1727,7 @@ int botan_x509_cert_store_sqlite3_create(
 
       // NOTE: Can't find / include <botan/sqlite3.h> nor <botan/certstor_sqlite.h>?
       // Thus, no access to Certificate_Store_In_SQLite
+      BOTAN_UNUSED(passwd,rng,table_prefix);
       return BOTAN_FFI_ERROR_INTERNAL_ERROR;
 
    });
@@ -1727,7 +1757,7 @@ int botan_x509_cert_store_system_create(
    });
 
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(cert_store);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -1739,9 +1769,10 @@ int botan_x509_cert_store_system_create(
 int botan_x509_cert_store_macos_create(
    botan_x509_cert_store_t* cert_store) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
+   BOTAN_UNUSED(cert_store);
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(cert_store);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -1753,9 +1784,10 @@ int botan_x509_cert_store_macos_create(
 int botan_x509_cert_store_windows_create(
    botan_x509_cert_store_t* cert_store) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
+   BOTAN_UNUSED(cert_store);
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(cert_store);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -1771,7 +1803,7 @@ int botan_x509_path_validation_restrictions_destroy(botan_x509_path_validation_r
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
    return BOTAN_FFI_CHECKED_DELETE(restrictions);
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(restrictions);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -1780,7 +1812,7 @@ int botan_x509_path_validation_result_destroy(botan_x509_path_validation_result_
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
    return BOTAN_FFI_CHECKED_DELETE(result);
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(result);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -1793,9 +1825,12 @@ int botan_x509_path_validation_restrictions_create(
    uint64_t max_ocsp_age,
    botan_x509_cert_store_t trusted_ocsp_responders) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
+   BOTAN_UNUSED(restrictions,require_rev,minimum_key_strength);
+   BOTAN_UNUSED(ocsp_all_intermediates,max_ocsp_age,trusted_ocsp_responders);
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(restrictions,require_rev,minimum_key_strength);
+   BOTAN_UNUSED(ocsp_all_intermediates,max_ocsp_age,trusted_ocsp_responders);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -1813,9 +1848,12 @@ int botan_x509_path_validate(
    uint64_t ocsp_timeout,
    void* ocsp_resp) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
+   BOTAN_UNUSED(result,end_cert,restrictions,cert_store,hostname);
+   BOTAN_UNUSED(usage,validation_time,ocsp_timeout,ocsp_resp);
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(result,end_cert,restrictions,cert_store,hostname);
+   BOTAN_UNUSED(usage,validation_time,ocsp_timeout,ocsp_resp);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -1823,9 +1861,10 @@ int botan_x509_path_validate(
 int botan_x509_path_validation_result_successful_validation(
    botan_x509_path_validation_result_t pvr) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
+   BOTAN_UNUSED(pvr);
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(pvr);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -1834,9 +1873,10 @@ int botan_x509_path_validation_result_result_string(
    char* result_string,
    botan_x509_path_validation_result_t pvr) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
+   BOTAN_UNUSED(result_string,pvr);
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(result_string,pvr);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -1845,9 +1885,10 @@ int botan_x509_path_validation_result_trust_root(
    botan_x509_cert_t* trust_root,
    botan_x509_path_validation_result_t pvr) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
+   BOTAN_UNUSED(trust_root,pvr);
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(trust_root,pvr);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -1856,9 +1897,10 @@ int botan_x509_path_validation_result_cert_path(
    botan_x509_cert_t** cert_path, size_t* cert_path_len,
    botan_x509_path_validation_result_t pvr) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
+   BOTAN_UNUSED(cert_path,cert_path_len,pvr);
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(cert_path,cert_path_len,pvr);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -1867,9 +1909,10 @@ int botan_x509_path_validation_result_status_code(
    int* status_code,
    botan_x509_path_validation_result_t pvr) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
+   BOTAN_UNUSED(status_code,pvr);
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(status_code,pvr);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -1878,9 +1921,10 @@ int botan_x509_path_validation_result_all_status_codes(
    int* status_codes, size_t* status_codes_len,
    botan_x509_path_validation_result_t pvr) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
+   BOTAN_UNUSED(status_codes,status_codes_len,pvr);
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(status_codes,status_codes_len,pvr);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -1889,9 +1933,10 @@ int botan_x509_path_validation_result_trusted_hashes(
    char** trusted_hashes, size_t* trusted_hashes_len,
    botan_x509_path_validation_result_t pvr) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
+   BOTAN_UNUSED(trusted_hashes,trusted_hashes_len,pvr);
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(trusted_hashes,trusted_hashes_len,pvr);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }

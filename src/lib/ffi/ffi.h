@@ -1736,6 +1736,10 @@ enum class Usage_Type {
 */
 // SEE: cert allowed_usage, x509_path_validate
 
+// NOTE: I'm fairly certain that I'm not properly transferring ownership
+// of things involving strings and arrays.
+// For instance, I am not using write_str_output or anything like that.
+
 /*
 * X.509 distinguished names
 **************************/
