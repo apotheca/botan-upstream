@@ -7,6 +7,7 @@
 
 #include <botan/ffi.h>
 #include <botan/pubkey.h>
+// #include <botan/sqlite3.h>
 
 #include <botan/internal/ffi_pkey.h>
 #include <botan/internal/ffi_rng.h>
@@ -23,10 +24,10 @@
    #include <botan/x509path.h>
    #include <botan/pkix_types.h>
    #include <botan/certstor.h>
-   // #include <botan/certstor_flatfile.h>
-   // #include <botan/certstor_sql.h>
+   #include <botan/certstor_flatfile.h>
+   #include <botan/certstor_sql.h>
    // #include <botan/certstor_sqlite.h>
-   // #include <botan/certstor_system.h>
+   #include <botan/certstor_system.h>
    // #include <botan/certstor_macos.h>
    // #include <botan/certstor_windows.h>
 #endif
@@ -1209,7 +1210,7 @@ BOTAN_FFI_DECLARE_STRUCT(botan_x509_cert_store_struct, Botan::Certificate_Store,
 
 int botan_x509_cert_store_destroy(botan_x509_cert_store_t cert_store) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+   return BOTAN_FFI_CHECKED_DELETE(cert_store);
 #else
    // TODO: BOTAN_UNUSED(...)
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
@@ -1305,9 +1306,19 @@ int botan_x509_cert_store_in_memory_load_dir(
    botan_x509_cert_store_t* cert_store,
    const char* dir_path) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+
+   if(cert_store == nullptr || dir_path == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
+
+   return ffi_guard_thunk(__func__, [=]() -> int {
+      auto cert_store_obj = std::make_unique<Botan::Certificate_Store_In_Memory>(std::string(dir_path));
+      *cert_store = new botan_x509_cert_store_struct(std::move(cert_store_obj));
+      return BOTAN_FFI_SUCCESS;
+   });
+
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(cert_store,dir_path);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -1316,9 +1327,19 @@ int botan_x509_cert_store_in_memory_load_cert(
    botan_x509_cert_store_t* cert_store,
    botan_x509_cert_t cert) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+
+   if(cert_store == nullptr || cert == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
+
+   return ffi_guard_thunk(__func__, [=]() -> int {
+      auto cert_store_obj = std::make_unique<Botan::Certificate_Store_In_Memory>(safe_get(cert));
+      *cert_store = new botan_x509_cert_store_struct(std::move(cert_store_obj));
+      return BOTAN_FFI_SUCCESS;
+   });
+
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(cert_store,cert);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -1326,9 +1347,19 @@ int botan_x509_cert_store_in_memory_load_cert(
 int botan_x509_cert_store_in_memory_create(
    botan_x509_cert_store_t* cert_store) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+
+   if(cert_store == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
+
+   return ffi_guard_thunk(__func__, [=]() -> int {
+      auto cert_store_obj = std::make_unique<Botan::Certificate_Store_In_Memory>();
+      *cert_store = new botan_x509_cert_store_struct(std::move(cert_store_obj));
+      return BOTAN_FFI_SUCCESS;
+   });
+
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(cert_store);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -1337,9 +1368,16 @@ int botan_x509_cert_store_in_memory_add_certificate(
    botan_x509_cert_store_t cert_store,
    botan_x509_cert_t cert) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+   return BOTAN_FFI_VISIT(cert_store, [=](auto& obj) {
+      if (auto store = dynamic_cast<Botan::Certificate_Store_In_Memory*>(&obj)) {
+         store->add_certificate(safe_get(cert));
+         return BOTAN_FFI_SUCCESS;
+      } else {
+         return BOTAN_FFI_ERROR_BAD_PARAMETER;
+      }
+   });
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(cert_store,cert);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -1348,9 +1386,16 @@ int botan_x509_cert_store_in_memory_add_crl(
    botan_x509_cert_store_t cert_store,
    botan_x509_crl_t crl) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+   return BOTAN_FFI_VISIT(cert_store, [=](auto& obj) {
+      if (auto store = dynamic_cast<Botan::Certificate_Store_In_Memory*>(&obj)) {
+         store->add_crl(safe_get(crl));
+         return BOTAN_FFI_SUCCESS;
+      } else {
+         return BOTAN_FFI_ERROR_BAD_PARAMETER;
+      }
+   });
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(cert_store,crl);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -1365,9 +1410,21 @@ int botan_x509_cert_store_flatfile_create(
    const char* file_path,
    bool ignore_non_ca) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+
+   if(cert_store == nullptr || file_path == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
+
+   return ffi_guard_thunk(__func__, [=]() -> int {
+      auto cert_store_obj = std::make_unique<Botan::Flatfile_Certificate_Store>(
+         std::string(file_path),
+         ignore_non_ca);
+      *cert_store = new botan_x509_cert_store_struct(std::move(cert_store_obj));
+      return BOTAN_FFI_SUCCESS;
+   });
+
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(cert_store,file_path,ignore_non_ca);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -1382,7 +1439,19 @@ int botan_x509_cert_store_sql_insert_cert(
    botan_x509_cert_store_t cert_store,
    botan_x509_cert_t cert) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+
+   return BOTAN_FFI_VISIT(cert_store, [=](auto& obj) {
+      if (auto store = dynamic_cast<Botan::Certificate_Store_In_SQL*>(&obj)) {
+         if(store->insert_cert(safe_get(cert))) {
+            return BOTAN_FFI_SUCCESS;
+         } else {
+            return BOTAN_FFI_INVALID_VERIFIER;
+         }
+      } else {
+         return BOTAN_FFI_ERROR_BAD_PARAMETER;
+      }
+   });
+
 #else
    // TODO: BOTAN_UNUSED(...)
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
@@ -1394,7 +1463,19 @@ int botan_x509_cert_store_sql_remove_cert(
    botan_x509_cert_store_t cert_store,
    botan_x509_cert_t cert) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+
+   return BOTAN_FFI_VISIT(cert_store, [=](auto& obj) {
+      if (auto store = dynamic_cast<Botan::Certificate_Store_In_SQL*>(&obj)) {
+         if(store->remove_cert(safe_get(cert))) {
+            return BOTAN_FFI_SUCCESS;
+         } else {
+            return BOTAN_FFI_INVALID_VERIFIER;
+         }
+      } else {
+         return BOTAN_FFI_ERROR_BAD_PARAMETER;
+      }
+   });
+
 #else
    // TODO: BOTAN_UNUSED(...)
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
@@ -1407,21 +1488,64 @@ int botan_x509_cert_store_sql_find_key(
    botan_x509_cert_store_t cert_store,
    botan_x509_cert_t cert) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+
+   if(key == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
+
+   return BOTAN_FFI_VISIT(cert_store, [=](auto& obj) {
+      if (auto store = dynamic_cast<Botan::Certificate_Store_In_SQL*>(&obj)) {
+
+         // NOTE: This returns a shared_ptr, and the following obviously
+         // doesn't work. because botan_privkey_struct expects a unique_ptr:
+         // auto key_obj = std::make_unique<Botan::Private_Key>(key_obj);
+         // *key = new botan_privkey_struct(std::move(key_obj));
+         // return BOTAN_FFI_SUCCESS;
+         // Since we can't do that, I'm not sure what I ought to do
+         // Certificate used to use shared_ptr, but it looks like
+         // stores / databases got missed?
+         // NOTE: Can't load an arbitrary private key?
+         return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+
+      } else {
+         return BOTAN_FFI_ERROR_BAD_PARAMETER;
+      }
+   });
+
 #else
    // TODO: BOTAN_UNUSED(...)
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
 
+// NOTE: NOT FINISHED - NEED TO RETURN AN ARRAY OF CERTIFICATES
+// NOTE: Do we need a double-pointer - see how botan_x509_cert_verify_with_crl
+// handles it - but also that's taking an array as INPUT, not OUTPUT
 int botan_x509_cert_store_sql_find_certs_for_key(
    botan_x509_cert_t** certs, size_t* certs_len,
    botan_x509_cert_store_t cert_store,
    botan_privkey_t key) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+
+   if(certs == nullptr || certs_len == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
+
+   return BOTAN_FFI_VISIT(cert_store, [=](auto& obj) {
+      if (auto store = dynamic_cast<Botan::Certificate_Store_In_SQL*>(&obj)) {
+         auto result = store->find_certs_for_key(safe_get(key));
+         // TODO: vector<X509_Certificate> to botan_x509_cert_t* certs, size_t certs_len
+         // *certs = ...
+         // *certs_len = result.size;
+         // return BOTAN_FFI_SUCCESS;
+         return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+      } else {
+         return BOTAN_FFI_ERROR_BAD_PARAMETER;
+      }
+   });
+
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(certs,certs_len,cert_store,key);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -1432,7 +1556,19 @@ int botan_x509_cert_store_sql_insert_key(
    botan_x509_cert_t cert,
    botan_privkey_t key) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+
+   return BOTAN_FFI_VISIT(cert_store, [=](auto& obj) {
+      if (auto store = dynamic_cast<Botan::Certificate_Store_In_SQL*>(&obj)) {
+         if(store->insert_key(safe_get(cert),safe_get(key))) {
+            return BOTAN_FFI_SUCCESS;
+         } else {
+            return BOTAN_FFI_INVALID_VERIFIER;
+         }
+      } else {
+         return BOTAN_FFI_ERROR_BAD_PARAMETER;
+      }
+   });
+
 #else
    // TODO: BOTAN_UNUSED(...)
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
@@ -1444,7 +1580,16 @@ int botan_x509_cert_store_sql_remove_key(
    botan_x509_cert_store_t cert_store,
    botan_privkey_t key) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+
+   return BOTAN_FFI_VISIT(cert_store, [=](auto& obj) {
+      if (auto store = dynamic_cast<Botan::Certificate_Store_In_SQL*>(&obj)) {
+         store->remove_key(safe_get(key));
+         return BOTAN_FFI_SUCCESS;
+      } else {
+         return BOTAN_FFI_ERROR_BAD_PARAMETER;
+      }
+   });
+
 #else
    // TODO: BOTAN_UNUSED(...)
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
@@ -1457,9 +1602,21 @@ int botan_x509_cert_store_sql_revoke_cert(
    uint32_t crl_code,
    uint64_t time) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+
+   return BOTAN_FFI_VISIT(cert_store, [=](auto& obj) {
+      if (auto store = dynamic_cast<Botan::Certificate_Store_In_SQL*>(&obj)) {
+         auto seconds = std::chrono::seconds(time);
+         auto duration = std::chrono::duration_cast<std::chrono::system_clock::time_point::duration>(seconds);
+         auto tp = std::chrono::system_clock::time_point(duration);
+         store->revoke_cert(safe_get(cert),static_cast<Botan::CRL_Code>(crl_code),Botan::X509_Time(tp));
+         return BOTAN_FFI_SUCCESS;
+      } else {
+         return BOTAN_FFI_ERROR_BAD_PARAMETER;
+      }
+   });
+
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(cert_store,cert,crl_code,time);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -1468,18 +1625,45 @@ int botan_x509_cert_store_sql_affirm_cert(
    botan_x509_cert_store_t cert_store,
    botan_x509_cert_t cert) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+
+   return BOTAN_FFI_VISIT(cert_store, [=](auto& obj) {
+      if (auto store = dynamic_cast<Botan::Certificate_Store_In_SQL*>(&obj)) {
+         store->affirm_cert(safe_get(cert));
+         return BOTAN_FFI_SUCCESS;
+      } else {
+         return BOTAN_FFI_ERROR_BAD_PARAMETER;
+      }
+   });
+
 #else
    // TODO: BOTAN_UNUSED(...)
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
 
+// NOTE: Ditto notes on double-pointer
 int botan_x509_cert_store_sql_generate_crls(
    botan_x509_crl_t** crls, size_t* crls_len,
    botan_x509_cert_store_t cert_store) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+
+   if(crls == nullptr || crls_len == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
+
+   return BOTAN_FFI_VISIT(cert_store, [=](auto& obj) {
+      if (auto store = dynamic_cast<Botan::Certificate_Store_In_SQL*>(&obj)) {
+         auto result = store->generate_crls();
+         // TODO:
+         // *crls = ...
+         // *crls_len = result.size;
+         // return BOTAN_FFI_SUCCESS;
+         return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+      } else {
+         return BOTAN_FFI_ERROR_BAD_PARAMETER;
+      }
+   });
+
 #else
    // TODO: BOTAN_UNUSED(...)
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
@@ -1497,9 +1681,29 @@ int botan_x509_cert_store_sqlite3_create(
    botan_rng_t rng,
    const char* table_prefix) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+
+   if(cert_store == nullptr || db_path == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
+
+   return ffi_guard_thunk(__func__, [=]() -> int {
+
+      // auto cert_store_obj = std::make_unique<Botan::Certificate_Store_In_SQLite>(
+      //    std::string(db_path),
+      //    passwd ? passwd : "",
+      //    safe_get(rng),
+      //    table_prefix ? table_prefix : "");
+      // *cert_store = new botan_x509_cert_store_struct(std::move(cert_store_obj));
+      // return BOTAN_FFI_SUCCESS;
+
+      // NOTE: Can't find / include <botan/sqlite3.h> nor <botan/certstor_sqlite.h>?
+      // Thus, no access to Certificate_Store_In_SQLite
+      return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+
+   });
+
 #else
-   // TODO: BOTAN_UNUSED(...)
+   BOTAN_UNUSED(cert_store,db_path,passwd,rng,table_prefix);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
@@ -1511,7 +1715,17 @@ int botan_x509_cert_store_sqlite3_create(
 int botan_x509_cert_store_system_create(
    botan_x509_cert_store_t* cert_store) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+
+   if(cert_store == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
+
+   return ffi_guard_thunk(__func__, [=]() -> int {
+      auto cert_store_obj = std::make_unique<Botan::System_Certificate_Store>();
+      *cert_store = new botan_x509_cert_store_struct(std::move(cert_store_obj));
+      return BOTAN_FFI_SUCCESS;
+   });
+
 #else
    // TODO: BOTAN_UNUSED(...)
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
@@ -1555,7 +1769,7 @@ BOTAN_FFI_DECLARE_STRUCT(botan_x509_path_validation_result_struct, Botan::Path_V
 
 int botan_x509_path_validation_restrictions_destroy(botan_x509_path_validation_restrictions_t restrictions) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+   return BOTAN_FFI_CHECKED_DELETE(restrictions);
 #else
    // TODO: BOTAN_UNUSED(...)
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
@@ -1564,7 +1778,7 @@ int botan_x509_path_validation_restrictions_destroy(botan_x509_path_validation_r
 
 int botan_x509_path_validation_result_destroy(botan_x509_path_validation_result_t result) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+   return BOTAN_FFI_CHECKED_DELETE(result);
 #else
    // TODO: BOTAN_UNUSED(...)
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;

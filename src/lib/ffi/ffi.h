@@ -2659,6 +2659,7 @@ int botan_x509_cert_store_system_create(
 
 // NOTE: Not a subclass of System_Certificate_Store
 
+// NOTE: May be unnecessary, just use System_Certificate_Store
 BOTAN_FFI_EXPORT(3,3)
 int botan_x509_cert_store_macos_create(
    botan_x509_cert_store_t* cert_store);
@@ -2673,6 +2674,7 @@ int botan_x509_cert_store_macos_create(
 
 // NOTE: Not a subclass of System_Certificate_Store
 
+// NOTE: May be unnecessary, just use System_Certificate_Store
 BOTAN_FFI_EXPORT(3,3)
 int botan_x509_cert_store_windows_create(
    botan_x509_cert_store_t* cert_store);
