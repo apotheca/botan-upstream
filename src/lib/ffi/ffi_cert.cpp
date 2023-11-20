@@ -53,8 +53,17 @@ int botan_x509_dn_destroy(botan_x509_dn_t dn) {
 
 int botan_x509_dn_create(botan_x509_dn_t* dn) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
-   BOTAN_UNUSED(dn);
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+
+   if (dn == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
+
+   return ffi_guard_thunk(__func__, [=]() -> int {
+      auto dn_ptr = std::make_unique<Botan::X509_DN>();
+      *dn = new botan_x509_dn_struct(std::move(dn_ptr));
+      return BOTAN_FFI_SUCCESS;
+   });
+
 #else
    BOTAN_UNUSED(dn);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
@@ -693,8 +702,20 @@ int botan_x509_crl_entry_create(
    botan_x509_cert_t cert,
    uint32_t reason_code) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
-   BOTAN_UNUSED(entry,cert,reason_code);
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+
+   if(entry == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
+
+   return ffi_guard_thunk(__func__, [=]() -> int {
+      auto entry_ptr = std::make_unique<Botan::CRL_Entry>(
+         safe_get(cert),
+         static_cast<Botan::CRL_Code>(reason_code)
+      );
+      *entry = new botan_x509_crl_entry_struct(std::move(entry_ptr));
+      return BOTAN_FFI_SUCCESS;
+   });
+
 #else
    BOTAN_UNUSED(entry,cert,reason_code);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
@@ -914,8 +935,26 @@ int botan_x509_create_cert_req(
    const char* hash_fn,
    botan_rng_t rng) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
-   BOTAN_UNUSED(csr,opts,key,hash_fn,rng);
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+
+   if(csr == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
+
+   return ffi_guard_thunk(__func__, [=]() -> int {
+      // Is this the right way to deal with this?
+      // It *compiles* but I hesitate to conclude
+      // that this is correct
+      std::unique_ptr<Botan::PKCS10_Request> csr_ptr; 
+      *csr_ptr = Botan::X509::create_cert_req(
+         safe_get(opts),
+         safe_get(key),
+         hash_fn ? hash_fn : "",
+         safe_get(rng)
+      );
+      *csr = new botan_x509_csr_struct(std::move(csr_ptr));
+      return BOTAN_FFI_SUCCESS;
+   });
+
 #else
    BOTAN_UNUSED(csr,opts,key,hash_fn,rng);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
@@ -932,6 +971,16 @@ int botan_x509_csr_create(
    const char* padding_fn,
    const char* challenge) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
+
+   // if(csr == nullptr || subject_dn == nullptr) {
+   //    return BOTAN_FFI_ERROR_NULL_POINTER;
+   // }
+
+   // return ffi_guard_thunk(__func__, [=]() -> int {
+   //    // TODO: ...
+   //    return BOTAN_FFI_SUCCESS;
+   // });
+
    BOTAN_UNUSED(csr,key,subject_dn,subject_dn_len,extensions,hash_fn,rng,padding_fn,challenge);
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;
 #else
@@ -947,8 +996,26 @@ int botan_x509_create_self_signed_cert(
    const char* hash_fn,
    botan_rng_t rng) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
-   BOTAN_UNUSED(cert,opts,key,hash_fn,rng);
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+
+   if(cert == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
+
+   return ffi_guard_thunk(__func__, [=]() -> int {
+      // Is this the right way to deal with this?
+      // It *compiles* but I hesitate to conclude
+      // that this is correct
+      std::unique_ptr<Botan::X509_Certificate> cert_ptr; 
+      *cert_ptr = Botan::X509::create_self_signed_cert(
+         safe_get(opts),
+         safe_get(key),
+         hash_fn ? hash_fn : "",
+         safe_get(rng)
+      );
+      *cert = new botan_x509_cert_struct(std::move(cert_ptr));
+      return BOTAN_FFI_SUCCESS;
+   });
+
 #else
    BOTAN_UNUSED(cert,opts,key,hash_fn,rng);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
@@ -1535,6 +1602,9 @@ int botan_x509_cert_store_sql_find_key(
          // Certificate used to use shared_ptr, but it looks like
          // stores / databases got missed?
          // NOTE: Can't load an arbitrary private key?
+         // NOTE: might be able to use the unique_ptr<type>() constructor
+         // instead of make_unique, to capture resulting objects that aren't
+         // vended by constructor
          return BOTAN_FFI_ERROR_INTERNAL_ERROR;
 
       } else {

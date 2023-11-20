@@ -1697,6 +1697,20 @@ int botan_mceies_decrypt(botan_privkey_t mce_key,
 * X.509 general
 **************************/
 
+// NOTE: I totally borked the naming convention for _obj. I should be calling
+// things _ptr and not _obj to disambiguate, and then make consistent.
+// TODO: Consistent initializers - look at botan_x509_cert_options_create vs botan_x509_ca_create_padding
+// Aside from the _obj thing, there's also the questions of:
+// - The initial '*foo = nullptr;'
+// - Whether we need this check:
+/*    
+if(foo_obj) {
+   *foo = new botan_x509_foo_struct(std::move(foo_obj));
+   return BOTAN_FFI_SUCCESS;
+}
+return BOTAN_FFI_ERROR_UNKNOWN_ERROR;
+*/
+
 // WARNING: Several functions return arrays of things:
 // DN functions return arrays of distinguished name values, key-value pairs
 // Store functions return arrays of certs
@@ -2019,7 +2033,7 @@ BOTAN_FFI_EXPORT(2, 8) const char* botan_x509_cert_validation_status(int code);
 **************************/
 
 typedef struct botan_x509_crl_struct* botan_x509_crl_t;
-typedef struct botan_x509_crl_struct* botan_x509_crl_entry_t;
+typedef struct botan_x509_crl_entry_struct* botan_x509_crl_entry_t;
 
 // TODO: FFI constants for:
 /*
@@ -2199,6 +2213,9 @@ typedef struct botan_x509_cert_options_struct* botan_x509_cert_options_t;
 BOTAN_FFI_EXPORT(3,3)
 int botan_x509_cert_options_destroy(botan_x509_cert_options_t opts);
 
+// NOTE: There are reasons to believe that this may not be implemented properly
+// You can probably just use botan_x509_create_self_signed_cert or botan_x509_csr_create
+// instead for now
 BOTAN_FFI_EXPORT(3,3)
 int botan_x509_create_cert_req(
    botan_x509_csr_t* csr,
