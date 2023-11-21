@@ -37,6 +37,46 @@ extern "C" {
 using namespace Botan_FFI;
 
 /*
+* X.509 general
+**************************/
+
+// NOTE: std::string constructors should be performing copy on
+// our const char*, so transfer of ownership inwards should be safe
+
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+
+// TODO: Should probably be NAME,TYPE,FIELD,...
+#define BOTAN_FFI_IMPL_FIELD_SETTER(NAME,FIELD,TYPE,SETFIELD)  \
+   int botan_ ## NAME ## _set_ ## FIELD(                       \
+      botan_ ## NAME ## _t NAME ## _obj,                       \
+      TYPE FIELD                                               \
+   ) {                                                         \
+      return BOTAN_FFI_VISIT(NAME ## _obj, [=](auto& obj) {    \
+         SETFIELD                                              \
+      });                                                      \
+   }
+
+#else
+
+// TODO: Should probably be NAME,TYPE,FIELD,...
+#define BOTAN_FFI_IMPL_FIELD_SETTER(NAME,FIELD,TYPE,SETFIELD)  \
+   int botan_ ## NAME ## _set_ ## FIELD(                       \
+      botan_ ## NAME ## _t NAME ## _obj,                       \
+      TYPE FIELD                                               \
+   ) {                                                         \
+      BOTAN_UNUSED(NAME ## _obj, FIELD);                       \
+      return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;                  \                                                \
+   }
+
+#endif
+
+#define BOTAN_FFI_IMPL_FIELD_SETTER_CSTRING(NAME,FIELD)     \
+   BOTAN_FFI_IMPL_FIELD_SETTER(NAME,FIELD, const char*, {   \
+      obj.FIELD = FIELD ? FIELD : "";                       \
+      return BOTAN_FFI_SUCCESS;                             \
+   })
+
+/*
 * X.509 distinguished names
 **************************/
 
@@ -1105,66 +1145,6 @@ int botan_x509_cert_options_create_common(
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
-
-// TODO: String owndership / handling / conventions:
-//
-// explicit std::string(foo) vs foo
-//
-// if (foo != nullptr) { obj.foo = foo; }
-//    vs
-//       obj.foo = foo ? foo : "";
-//
-// auto vs explicit types - auto is fine, but explicit is better for hinting
-
-#if defined(BOTAN_HAS_X509_CERTIFICATES)
-
-// TODO: Should probably be NAME,TYPE,FIELD,...
-#define BOTAN_FFI_IMPL_FIELD_SETTER(NAME,FIELD,TYPE,SETFIELD)  \
-   int botan_ ## NAME ## _set_ ## FIELD(                       \
-      botan_ ## NAME ## _t NAME ## _obj,                       \
-      TYPE FIELD                                               \
-   ) {                                                         \
-      return BOTAN_FFI_VISIT(NAME ## _obj, [=](auto& obj) {    \
-         SETFIELD                                              \
-      });                                                      \
-   }
-
-#else
-
-// TODO: Should probably be NAME,TYPE,FIELD,...
-#define BOTAN_FFI_IMPL_FIELD_SETTER(NAME,FIELD,TYPE,SETFIELD)  \
-   int botan_ ## NAME ## _set_ ## FIELD(                       \
-      botan_ ## NAME ## _t NAME ## _obj,                       \
-      TYPE FIELD                                               \
-   ) {                                                         \
-      BOTAN_UNUSED(NAME ## _obj, FIELD);                       \
-      return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;                  \                                                \
-   }
-
-#endif
-
-#define BOTAN_FFI_IMPL_FIELD_SETTER_CSTRING(NAME,FIELD)     \
-   BOTAN_FFI_IMPL_FIELD_SETTER(NAME,FIELD, const char*, {   \
-      obj.FIELD = FIELD ? FIELD : "";                       \
-      return BOTAN_FFI_SUCCESS;                             \
-   })
-
-// NOTE: Using a define, vs copy-pasting the same code
-// int botan_x509_cert_options_set_common_name(
-//    botan_x509_cert_options_t opts,
-//    const char* common_name 
-// ) {
-// #if defined(BOTAN_HAS_X509_CERTIFICATES)
-//    // return BOTAN_FFI_VISIT(opts, [=](auto& opts_obj) {
-//    return BOTAN_FFI_VISIT(opts, [=](Botan::X509_Cert_Options& opts_obj) {
-//       opts_obj.common_name = common_name ? common_name : "";
-//       return BOTAN_FFI_SUCCESS;
-//    });
-// #else
-//    BOTAN_UNUSED(opts,common_name);
-//    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
-// #endif
-// }
 
 BOTAN_FFI_IMPL_FIELD_SETTER_CSTRING(x509_cert_options,common_name);
 BOTAN_FFI_IMPL_FIELD_SETTER_CSTRING(x509_cert_options,country);
