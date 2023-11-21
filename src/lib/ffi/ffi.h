@@ -1808,6 +1808,8 @@ int botan_x509_dn_to_string(
 
 // TODO: Implement BER / DER encoding?
 
+// TODO: Better interface than this
+
 // NOTE: Returns boolean success code
 BOTAN_FFI_EXPORT(3,3)
 int botan_x509_dn_has_field(
@@ -1819,7 +1821,8 @@ int botan_x509_dn_get_first_attribute(
    uint8_t out[], size_t* out_len,
    botan_x509_dn_t dn,
    const uint8_t key[], size_t key_len);
-   
+
+// TODO: vals, sizes, count
 BOTAN_FFI_EXPORT(3,3)
 int botan_x509_dn_get_attribute(
    uint8_t** vals, size_t* val_sizes, size_t* val_count,

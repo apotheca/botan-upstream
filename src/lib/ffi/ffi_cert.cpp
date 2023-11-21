@@ -13,6 +13,7 @@
 #include <botan/internal/ffi_rng.h>
 #include <botan/internal/ffi_util.h>
 
+#include <map>
 #include <memory>
 
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
@@ -42,6 +43,11 @@ using namespace Botan_FFI;
 
 // NOTE: std::string constructors should be performing copy on
 // our const char*, so transfer of ownership inwards should be safe
+
+// NOTE: I believe that since write_str_output allocates an extra final byte
+// per 'str.size() + 1' there are many cases (distinguished names etc) in which
+// I should be using write_vec_output instead, as the distinguished names et al
+// may contain null bytes
 
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
 
@@ -129,8 +135,9 @@ int botan_x509_dn_to_string(
    uint8_t out[], size_t* out_len,
    botan_x509_dn_t dn) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
-   BOTAN_UNUSED(out,out_len,dn);
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+   return BOTAN_FFI_VISIT(dn, [=](const Botan::X509_DN& obj) {
+      return write_str_output(out, out_len, obj.to_string() );
+   });
 #else
    BOTAN_UNUSED(out,out_len,dn);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
@@ -141,21 +148,30 @@ int botan_x509_dn_has_field(
    botan_x509_dn_t dn,
    const uint8_t key[], size_t key_len) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
-   BOTAN_UNUSED(dn,key,key_len);
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+   return BOTAN_FFI_VISIT(dn, [=](const Botan::X509_DN& obj) {
+      if (obj.has_field(std::string(Botan::cast_uint8_ptr_to_char(key),key_len))) {
+         return 0;
+      } else {
+         return 1;
+      }
+   });
 #else
    BOTAN_UNUSED(dn,key,key_len);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }
 
+// TODO: What to do when attribute is not found?
+// Raise a specific error code? Return empty string?
 int botan_x509_dn_get_first_attribute(
    uint8_t out[], size_t* out_len,
    botan_x509_dn_t dn,
    const uint8_t key[], size_t key_len) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
-   BOTAN_UNUSED(out,out_len,dn,key,key_len);
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+   return BOTAN_FFI_VISIT(dn, [=](const Botan::X509_DN& obj) {
+      auto result = obj.get_first_attribute(std::string(Botan::cast_uint8_ptr_to_char(key),key_len));
+      return write_str_output(out, out_len, result);
+   });
 #else
    BOTAN_UNUSED(out,out_len,dn,key,key_len);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
@@ -167,8 +183,37 @@ int botan_x509_dn_get_attribute(
    botan_x509_dn_t dn,
    const uint8_t key[], size_t key_len) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
-   BOTAN_UNUSED(vals,val_sizes,val_count,dn,key,key_len);
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+   return BOTAN_FFI_VISIT(dn, [=](const Botan::X509_DN& obj) {
+
+      if (val_count == nullptr) {
+         return BOTAN_FFI_ERROR_NULL_POINTER;
+      }
+
+      auto attribute = obj.get_attribute(std::string(Botan::cast_uint8_ptr_to_char(key),key_len));
+      size_t required_count = attribute.size();
+      size_t allocated_count = *val_count;
+      *val_count = required_count;
+
+      if (allocated_count < required_count) {
+         return BOTAN_FFI_ERROR_INSUFFICIENT_BUFFER_SPACE;
+      }
+
+      if (val_sizes == nullptr) {
+         return BOTAN_FFI_ERROR_NULL_POINTER;
+      }
+
+      // NOTE: This ensures that the sizes are populated even if a single item fails
+      int result = BOTAN_FFI_SUCCESS;
+      for (size_t i = 0; i < required_count; i++) {
+         if (result == BOTAN_FFI_SUCCESS) {
+            result = write_str_output(*(vals + i), val_sizes + i, attribute[i]);
+         } else {
+            val_sizes[i] = attribute[i].size();
+         }
+      }
+      return static_cast<BOTAN_FFI_ERROR>(result);
+      
+   });
 #else
    BOTAN_UNUSED(vals,val_sizes,val_count,dn,key,key_len);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
@@ -179,8 +224,45 @@ int botan_x509_dn_contents(
    uint8_t** keys, size_t* key_sizes, uint8_t** vals, size_t* val_sizes, size_t* count,
    botan_x509_dn_t dn) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
-   BOTAN_UNUSED(keys,key_sizes,vals,val_sizes,count,dn);
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+   return BOTAN_FFI_VISIT(dn, [=](const Botan::X509_DN& obj) {
+
+      if (count == nullptr) {
+         return BOTAN_FFI_ERROR_NULL_POINTER;
+      }
+
+      auto contents = obj.contents();
+
+      size_t required_count = contents.size();
+      size_t allocated_count = *count;
+      *count = required_count;
+
+      if (allocated_count < required_count) {
+         return BOTAN_FFI_ERROR_INSUFFICIENT_BUFFER_SPACE;
+      }
+
+      if (key_sizes == nullptr || val_sizes == nullptr) {
+         return BOTAN_FFI_ERROR_NULL_POINTER;
+      }
+
+      // NOTE: This ensures that the sizes are populated even if a single item fails
+      int result = BOTAN_FFI_SUCCESS;
+      int i = 0;
+      for (auto it = contents.begin(); it != contents.end(); ++it,++i) {
+         if (result == BOTAN_FFI_SUCCESS) {
+            result = write_str_output(*(keys + i), key_sizes + i, it->first);
+            if (result == BOTAN_FFI_SUCCESS) {
+               result = write_str_output(*(vals + i), val_sizes + i, it->second);
+            } else {
+               val_sizes[i] = it->second.size();
+            }
+         } else {
+            key_sizes[i] = it->first.size();
+            val_sizes[i] = it->second.size();
+         }
+      }
+      return static_cast<BOTAN_FFI_ERROR>(result);
+      
+   });
 #else
    BOTAN_UNUSED(keys,key_sizes,vals,val_sizes,count,dn);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
@@ -192,8 +274,17 @@ int botan_x509_dn_add_attribute(
    const uint8_t key[], size_t key_len,
    const uint8_t val[], size_t val_len) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
-   BOTAN_UNUSED(dn,key,key_len,val,val_len);
-   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+   return BOTAN_FFI_VISIT(dn, [=](Botan::X509_DN& obj) {
+
+      // TODO: Determine whether this is th proper idiom (here and elsewhere with DNs)
+      auto k = std::string(Botan::cast_uint8_ptr_to_char(key),key_len);
+      auto v = std::string(Botan::cast_uint8_ptr_to_char(val),val_len);
+
+      obj.add_attribute(k,v);
+
+      return BOTAN_FFI_SUCCESS;
+
+   });
 #else
    BOTAN_UNUSED(dn,key,key_len,val,val_len);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
