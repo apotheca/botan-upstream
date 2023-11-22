@@ -1729,7 +1729,6 @@ int botan_x509_cert_store_sql_find_key(
 
    return BOTAN_FFI_VISIT(cert_store, [=](auto& obj) {
       if (auto store = dynamic_cast<Botan::Certificate_Store_In_SQL*>(&obj)) {
-
          // NOTE: This returns a shared_ptr, and the following obviously
          // doesn't work. because botan_privkey_struct expects a unique_ptr:
          // auto key_obj = std::make_unique<Botan::Private_Key>(key_obj);
@@ -1742,7 +1741,11 @@ int botan_x509_cert_store_sql_find_key(
          // NOTE: might be able to use the unique_ptr<type>() constructor
          // instead of make_unique, to capture resulting objects that aren't
          // vended by constructor
-         return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+         // return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+
+         auto key_up = store->find_key_unique(safe_get(cert));
+         *key = new botan_privkey_struct(std::move(key_up));
+         return BOTAN_FFI_SUCCESS;
 
       } else {
          return BOTAN_FFI_ERROR_BAD_PARAMETER;

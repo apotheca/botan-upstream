@@ -174,6 +174,12 @@ bool Certificate_Store_In_SQL::remove_cert(const X509_Certificate& cert) {
 
 // Private key handling
 std::shared_ptr<const Private_Key> Certificate_Store_In_SQL::find_key(const X509_Certificate& cert) const {
+   return find_key_unique(cert);
+}
+
+// I don't know the implications of changing the return type from shared_ptr
+// to unique_ptr, so I'm making it a new function for the moment
+std::unique_ptr<Private_Key> Certificate_Store_In_SQL::find_key_unique(const X509_Certificate& cert) const {
    auto stmt = m_database->new_statement("SELECT key FROM " + m_prefix +
                                          "keys "
                                          "JOIN " +
@@ -183,7 +189,7 @@ std::shared_ptr<const Private_Key> Certificate_Store_In_SQL::find_key(const X509
                                          m_prefix + "certificates.fingerprint == ?1");
    stmt->bind(1, cert.fingerprint("SHA-256"));
 
-   std::shared_ptr<const Private_Key> key;
+   std::unique_ptr<Private_Key> key;
    while(stmt->step()) {
       auto blob = stmt->get_blob(0);
       DataSource_Memory src(blob.first, blob.second);

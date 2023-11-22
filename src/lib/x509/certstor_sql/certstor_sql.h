@@ -72,6 +72,8 @@ class BOTAN_PUBLIC_API(2, 0) Certificate_Store_In_SQL : public Certificate_Store
 
       /// Returns the private key for "cert" or an empty shared_ptr if none was found.
       std::shared_ptr<const Private_Key> find_key(const X509_Certificate&) const;
+      // NOTE: shared_ptr -> unique_ptr, removal of const
+      std::unique_ptr<Private_Key> find_key_unique(const X509_Certificate&) const;
 
       /// Returns all certificates for private key "key".
       std::vector<X509_Certificate> find_certs_for_key(const Private_Key& key) const;
