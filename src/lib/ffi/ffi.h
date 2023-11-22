@@ -1864,24 +1864,178 @@ int botan_x509_exts_destroy(botan_x509_exts_t exts);
 // NOTE: Ownership of objects is finnicky across the C FFI barrier, especially
 // with nested objects
 // TODO: Determine whether we should bother with individual extension objects:
-/*
+//*
+
+// Extensions functions
 
 BOTAN_FFI_EXPORT(3,3)
-int botan_x509_ext_basic_constraints(
+int botan_x509_exts_add(
+   botan_x509_exts_t exts,
+   botan_x509_cert_ext_t ext,
+   bool critical);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_exts_add_new(
+   botan_x509_exts_t exts,
+   botan_x509_cert_ext_t ext,
+   bool critical);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_exts_replace(
+   botan_x509_exts_t exts,
+   botan_x509_cert_ext_t ext,
+   bool critical);
+
+// NOTE: Remove takes an OID
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_exts_remove(
+   botan_x509_exts_t exts,
+   const uint8_t oid[], size_t oid_len);
+
+// Individual extension functions
+
+// Basic_Constraints
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_ext_basic_constraints(
    botan_x509_cert_ext_t* ext,
    bool ca,
    int path_limit);
 
+// Key_Usage
 BOTAN_FFI_EXPORT(3,3)
-int botan_x509_ext_key_usage(
+int botan_x509_cert_ext_key_usage(
    botan_x509_cert_ext_t* ext,
    unsigned int key_usage);
 
+// Subject_Key_ID
 BOTAN_FFI_EXPORT(3,3)
-int botan_x509_ext_subject_key_id(
+int botan_x509_cert_ext_subject_key_id(
    botan_x509_cert_ext_t* ext,
    botan_pubkey_t pubkey,
    const char* hash_fn);
+
+// Authority_Key_ID
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_ext_authority_key_id(
+   botan_x509_cert_ext_t* ext);
+
+// Subject_Alternative_Name
+// NOTE: From documentation:
+//    Subject Alternative Names: Only the “rfc822Name”, “dNSName”, and “uniformResourceIdentifier”
+//    and raw IPv4 fields will be stored; all others are ignored.
+// This means email, dns, uri, and ip
+// We will avoid constructing an AlternativeName object
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_ext_subject_alternative_name(
+   botan_x509_cert_ext_t* ext,
+   const uint8_t email[], size_t email_len,
+   const uint8_t dns[], size_t dns_len,
+   const uint8_t uri[], size_t uri_len,
+   const uint8_t ip[], size_t ip_len);
+
+// Issuer_Alternative_Name
+// DITTO
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_ext_issuer_alternative_name(
+   botan_x509_cert_ext_t* ext,
+   const uint8_t email[], size_t email_len,
+   const uint8_t dns[], size_t dns_len,
+   const uint8_t uri[], size_t uri_len,
+   const uint8_t ip[], size_t ip_len);
+
+//Extended_Key_Usage
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_ext_extended_key_usage(
+   botan_x509_cert_ext_t* ext,
+   const uint8_t* oid[], size_t oid_len[],size_t oid_count);
+
+// Name_Constraint
+// NOTE: This relies on NameConstraint (not Name_Costraint!) which depends on
+// GeneralSubtree and then GeneralName
+// NOTE: It also does not support encoding:
+//    Name Constraints: No problems known (though encoding is not supported).
+// So it is probably only logical to support string constructor
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_ext_name_constraint(
+   botan_x509_cert_ext_t* ext,
+   const uint8_t name_constraint[], size_t name_constraint_len);
+
+// Certificate_Policies
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_ext_certificate_policies(
+   botan_x509_cert_ext_t* ext,
+   const uint8_t* oid[], size_t oid_len[],size_t oid_count);
+
+// Authority_Information_Access
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_ext_authority_information_access(
+   botan_x509_cert_ext_t* ext,
+   const uint8_t ocsp[], size_t ocsp_len,
+   const uint8_t* ca_issuers[], size_t ca_issuers_len[], size_t ca_issuers_count);
+
+// CRL_Number
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_ext_crl_number(
+   botan_x509_cert_ext_t* ext);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_ext_crl_number_from_number(
+   botan_x509_cert_ext_t* ext,
+   size_t crl_number);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_ext_crl_number_get_number(
+   size_t* crl_number,
+   botan_x509_cert_ext_t ext);
+
+// CRL_ReasonCode
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_ext_crl_reason_code(
+   botan_x509_cert_ext_t* ext,
+   uint32_t crl_reason_code);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_ext_crl_reason_code_get_reason(
+   uint32_t* crl_reason_code,
+   botan_x509_cert_ext_t ext);
+
+// CRL_Distribution_Points
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_ext_crl_distribution_points(
+   botan_x509_cert_ext_t* ext);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_ext_crl_distribution_points_add_distribution_point(
+   botan_x509_cert_ext_t* ext,
+   const uint8_t email[], size_t email_len,
+   const uint8_t dns[], size_t dns_len,
+   const uint8_t uri[], size_t uri_len,
+   const uint8_t ip[], size_t ip_len);
+
+// CRL_Issuing_Distribution_Point
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_ext_crl_issuing_distribution_points(
+   botan_x509_cert_ext_t* ext);
+   
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_ext_crl_issuing_distribution_points_add_distribution_point(
+   botan_x509_cert_ext_t* ext,
+   const uint8_t email[], size_t email_len,
+   const uint8_t dns[], size_t dns_len,
+   const uint8_t uri[], size_t uri_len,
+   const uint8_t ip[], size_t ip_len);
+
+// OCSP_NoCheck
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_ext_ocsp_nocheck(
+   botan_x509_cert_ext_t* ext);
+
+// Unknown_Extension
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_cert_ext_unknown_extension(
+   botan_x509_cert_ext_t* ext,
+   const uint8_t oid[], size_t oid_len,
+   bool critical);
 
 // ...
 

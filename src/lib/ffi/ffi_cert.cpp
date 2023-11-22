@@ -321,6 +321,72 @@ int botan_x509_exts_destroy(botan_x509_exts_t exts) {
 #endif
 }
 
+// TODO: Ensure copying / ownership of extension lists
+
+// NOTE: The exts_add functions do take ownership, but we cannot
+// create the requisite unique_ptr because we get:
+//    error: allocating an object of abstract class type 'Botan::Certificate_Extension'
+// Cert store and public / private key seem to get away with it, but how?
+// The function type is:
+//    void Extensions::add(std::unique_ptr<Certificate_Extension> extn, bool critical = false);
+// We need to either figure it out, or use per-constraint add / replace
+
+int botan_x509_exts_add(
+   botan_x509_exts_t exts,
+   botan_x509_cert_ext_t ext,
+   bool critical) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   // return BOTAN_FFI_VISIT(exts,[=](Botan::Extensions& exts_obj) {
+   //    // What to do here?
+   //    // exts_obj.add(std::make_unique(safe_get(ext).copy()), critical);
+   // });
+   BOTAN_UNUSED(exts,ext,critical);
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#else
+   BOTAN_UNUSED(exts,ext,critical);
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+int botan_x509_exts_add_new(
+   botan_x509_exts_t exts,
+   botan_x509_cert_ext_t ext,
+   bool critical) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   BOTAN_UNUSED(exts,ext,critical);
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#else
+   BOTAN_UNUSED(exts,ext,critical);
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+int botan_x509_exts_replace(
+   botan_x509_exts_t exts,
+   botan_x509_cert_ext_t ext,
+   bool critical) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   BOTAN_UNUSED(exts,ext,critical);
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#else
+   BOTAN_UNUSED(exts,ext,critical);
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+// NOTE: Remove takes an OID
+int botan_x509_exts_remove(
+   botan_x509_exts_t exts,
+   const uint8_t oid[], size_t oid_len) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   BOTAN_UNUSED(exts,oid,oid_len);
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#else
+   BOTAN_UNUSED(exts,oid,oid_len);
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
 /*
 * X.509 certificate
 **************************/
