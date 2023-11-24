@@ -1461,9 +1461,7 @@ int botan_x509_cert_store_find_cert(
 }
 
 int botan_x509_cert_store_find_all_certs(
-   // botan_x509_cert_t* certs, size_t* certs_len,
-   // or
-   botan_x509_cert_t** certs, size_t* certs_len,
+   botan_x509_cert_t* certs, size_t* certs_len,
    botan_x509_cert_store_t cert_store,
    const uint8_t subject_dn[], size_t subject_dn_len,
    const uint8_t key_id[], size_t key_id_len) {

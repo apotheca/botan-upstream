@@ -2626,9 +2626,7 @@ int botan_x509_cert_store_find_cert(
 
 BOTAN_FFI_EXPORT(3,3)
 int botan_x509_cert_store_find_all_certs(
-   // botan_x509_cert_t* certs, size_t* certs_len,
-   // or
-   botan_x509_cert_t** certs, size_t* certs_len,
+   botan_x509_cert_t* certs, size_t* certs_len,
    botan_x509_cert_store_t cert_store,
    const uint8_t subject_dn[], size_t subject_dn_len,
    const uint8_t key_id[], size_t key_id_len);
@@ -2710,6 +2708,7 @@ int botan_x509_cert_store_in_memory_add_crl(
 * Certificate Store that is backed by a file of PEMs of trusted CAs.
 */
 
+// TODO: Probably rename to botan_x509_cert_store_flatfile_load
 BOTAN_FFI_EXPORT(3,3)
 int botan_x509_cert_store_flatfile_create(
    botan_x509_cert_store_t* cert_store,
