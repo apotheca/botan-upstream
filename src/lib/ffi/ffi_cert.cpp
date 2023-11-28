@@ -1756,10 +1756,8 @@ int botan_x509_cert_store_sql_find_key(
 }
 
 // NOTE: NOT FINISHED - NEED TO RETURN AN ARRAY OF CERTIFICATES
-// NOTE: Do we need a double-pointer - see how botan_x509_cert_verify_with_crl
-// handles it - but also that's taking an array as INPUT, not OUTPUT
 int botan_x509_cert_store_sql_find_certs_for_key(
-   botan_x509_cert_t** certs, size_t* certs_len,
+   botan_x509_cert_t* certs, size_t* certs_len,
    botan_x509_cert_store_t cert_store,
    botan_privkey_t key) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
@@ -1878,9 +1876,8 @@ int botan_x509_cert_store_sql_affirm_cert(
 #endif
 }
 
-// NOTE: Ditto notes on double-pointer
 int botan_x509_cert_store_sql_generate_crls(
-   botan_x509_crl_t** crls, size_t* crls_len,
+   botan_x509_crl_t* crls, size_t* crls_len,
    botan_x509_cert_store_t cert_store) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
 
@@ -2004,10 +2001,10 @@ int botan_x509_cert_store_windows_create(
 * X.509 Path validation
 **************************/
 
-BOTAN_FFI_DECLARE_STRUCT(botan_x509_path_validation_restrictions_struct, Botan::Path_Validation_Restrictions, 0xb070e8a9);
-BOTAN_FFI_DECLARE_STRUCT(botan_x509_path_validation_result_struct, Botan::Path_Validation_Result, 0xe7d9c255);
+BOTAN_FFI_DECLARE_STRUCT(botan_x509_path_restrictions_struct, Botan::Path_Validation_Restrictions, 0xb070e8a9);
+BOTAN_FFI_DECLARE_STRUCT(botan_x509_path_validation_struct, Botan::Path_Validation_Result, 0xe7d9c255);
 
-int botan_x509_path_validation_restrictions_destroy(botan_x509_path_validation_restrictions_t restrictions) {
+int botan_x509_path_restrictions_destroy(botan_x509_path_restrictions_t restrictions) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
    return BOTAN_FFI_CHECKED_DELETE(restrictions);
 #else
@@ -2016,7 +2013,7 @@ int botan_x509_path_validation_restrictions_destroy(botan_x509_path_validation_r
 #endif
 }
 
-int botan_x509_path_validation_result_destroy(botan_x509_path_validation_result_t result) {
+int botan_x509_path_validation_destroy(botan_x509_path_validation_t result) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
    return BOTAN_FFI_CHECKED_DELETE(result);
 #else
@@ -2025,8 +2022,8 @@ int botan_x509_path_validation_result_destroy(botan_x509_path_validation_result_
 #endif
 }
 
-int botan_x509_path_validation_restrictions_create(
-   botan_x509_path_validation_restrictions_t* restrictions,
+int botan_x509_path_restrictions_create(
+   botan_x509_path_restrictions_t* restrictions,
    bool require_rev,
    size_t minimum_key_strength,
    bool ocsp_all_intermediates,
@@ -2046,9 +2043,9 @@ int botan_x509_path_validation_restrictions_create(
 // NOTE: This needs more than IF BOTAN_HAS_X509_CERTIFICATES
 // It needs the IF HTTP_UTIL as well?
 int botan_x509_path_validate(
-   botan_x509_path_validation_result_t* result,
+   botan_x509_path_validation_t* result,
    botan_x509_cert_t end_cert,
-   botan_x509_path_validation_restrictions_t* restrictions,
+   botan_x509_path_restrictions_t* restrictions,
    botan_x509_cert_store_t cert_store,
    const char* hostname,
    unsigned int usage,
@@ -2066,8 +2063,8 @@ int botan_x509_path_validate(
 #endif
 }
 
-int botan_x509_path_validation_result_successful_validation(
-   botan_x509_path_validation_result_t pvr) {
+int botan_x509_path_validation_successful_validation(
+   botan_x509_path_validation_t pvr) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
    BOTAN_UNUSED(pvr);
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;
@@ -2077,11 +2074,11 @@ int botan_x509_path_validation_result_successful_validation(
 #endif
 }
 
-int botan_x509_path_validation_result_result_string(
-   char* result_string,
-   botan_x509_path_validation_result_t pvr) {
+int botan_x509_path_validation_result_string(
+   char* result_string, size_t* result_string_len,
+   botan_x509_path_validation_t pvr) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
-   BOTAN_UNUSED(result_string,pvr);
+   BOTAN_UNUSED(result_string,result_string_len,pvr);
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;
 #else
    BOTAN_UNUSED(result_string,pvr);
@@ -2089,9 +2086,9 @@ int botan_x509_path_validation_result_result_string(
 #endif
 }
 
-int botan_x509_path_validation_result_trust_root(
+int botan_x509_path_validation_trust_root(
    botan_x509_cert_t* trust_root,
-   botan_x509_path_validation_result_t pvr) {
+   botan_x509_path_validation_t pvr) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
    BOTAN_UNUSED(trust_root,pvr);
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;
@@ -2101,9 +2098,9 @@ int botan_x509_path_validation_result_trust_root(
 #endif
 }
 
-int botan_x509_path_validation_result_cert_path(
-   botan_x509_cert_t** cert_path, size_t* cert_path_len,
-   botan_x509_path_validation_result_t pvr) {
+int botan_x509_path_validation_cert_path(
+   botan_x509_cert_t* cert_path, size_t* cert_path_len,
+   botan_x509_path_validation_t pvr) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
    BOTAN_UNUSED(cert_path,cert_path_len,pvr);
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;
@@ -2113,9 +2110,9 @@ int botan_x509_path_validation_result_cert_path(
 #endif
 }
 
-int botan_x509_path_validation_result_status_code(
+int botan_x509_path_validation_status_code(
    int* status_code,
-   botan_x509_path_validation_result_t pvr) {
+   botan_x509_path_validation_t pvr) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
    BOTAN_UNUSED(status_code,pvr);
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;
@@ -2125,9 +2122,9 @@ int botan_x509_path_validation_result_status_code(
 #endif
 }
 
-int botan_x509_path_validation_result_all_status_codes(
+int botan_x509_path_validation_all_status_codes(
    int* status_codes, size_t* status_codes_len,
-   botan_x509_path_validation_result_t pvr) {
+   botan_x509_path_validation_t pvr) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
    BOTAN_UNUSED(status_codes,status_codes_len,pvr);
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;
@@ -2137,14 +2134,14 @@ int botan_x509_path_validation_result_all_status_codes(
 #endif
 }
 
-int botan_x509_path_validation_result_trusted_hashes(
-   char** trusted_hashes, size_t* trusted_hashes_len,
-   botan_x509_path_validation_result_t pvr) {
+int botan_x509_path_validation_trusted_hashes(
+   char** trusted_hashes, size_t* trusted_hash_sizes, size_t* trusted_hash_count,
+   botan_x509_path_validation_t pvr) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
-   BOTAN_UNUSED(trusted_hashes,trusted_hashes_len,pvr);
+   BOTAN_UNUSED(trusted_hashes,trusted_hash_sizes,trusted_hash_count,pvr);
    return BOTAN_FFI_ERROR_INTERNAL_ERROR;
 #else
-   BOTAN_UNUSED(trusted_hashes,trusted_hashes_len,pvr);
+   BOTAN_UNUSED(trusted_hashes,trusted_hash_sizes,trusted_hash_count,pvr);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 #endif
 }

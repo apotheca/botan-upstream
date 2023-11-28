@@ -2616,6 +2616,8 @@ typedef struct botan_x509_cert_store_struct* botan_x509_cert_store_t;
 BOTAN_FFI_EXPORT(3,3)
 int botan_x509_cert_store_destroy(botan_x509_cert_store_t cert_store);
 
+// NOTE: These searches take an encoded DN? Format not yet known.
+
 // NOTE: "Returns" a null pointer if not found?
 BOTAN_FFI_EXPORT(3,3)
 int botan_x509_cert_store_find_cert(
@@ -2708,7 +2710,6 @@ int botan_x509_cert_store_in_memory_add_crl(
 * Certificate Store that is backed by a file of PEMs of trusted CAs.
 */
 
-// TODO: Probably rename to botan_x509_cert_store_flatfile_load
 BOTAN_FFI_EXPORT(3,3)
 int botan_x509_cert_store_flatfile_create(
    botan_x509_cert_store_t* cert_store,
@@ -2762,7 +2763,7 @@ int botan_x509_cert_store_sql_find_key(
 
 BOTAN_FFI_EXPORT(3,3)
 int botan_x509_cert_store_sql_find_certs_for_key(
-   botan_x509_cert_t** certs, size_t* certs_len,
+   botan_x509_cert_t* certs, size_t* certs_len,
    botan_x509_cert_store_t cert_store,
    botan_privkey_t key);
 
@@ -2793,7 +2794,7 @@ int botan_x509_cert_store_sql_affirm_cert(
 
 BOTAN_FFI_EXPORT(3,3)
 int botan_x509_cert_store_sql_generate_crls(
-   botan_x509_crl_t** crls, size_t* crls_len,
+   botan_x509_crl_t* crls, size_t* crls_len,
    botan_x509_cert_store_t cert_store);
 
 // NOTE: I am unsure if I need to implement botan_x509_cert_store_sql_find_crl_for,
@@ -2866,25 +2867,25 @@ int botan_x509_cert_store_windows_create(
 
 // I'm sorry Captain, I cannae do it, I dont have the ~~power~~ shorter names
 // TODO: botan_x509_pv_*?
-typedef struct botan_x509_path_validation_restrictions_struct* botan_x509_path_validation_restrictions_t;
-typedef struct botan_x509_path_validation_result_struct* botan_x509_path_validation_result_t;
+typedef struct botan_x509_path_restrictions_struct* botan_x509_path_restrictions_t;
+typedef struct botan_x509_path_validation_struct* botan_x509_path_validation_t;
 
 BOTAN_FFI_EXPORT(3,3)
-int botan_x509_path_validation_restrictions_destroy(botan_x509_path_validation_restrictions_t restrictions);
+int botan_x509_path_restrictions_destroy(botan_x509_path_restrictions_t restrictions);
 
 BOTAN_FFI_EXPORT(3,3)
-int botan_x509_path_validation_result_destroy(botan_x509_path_validation_result_t result);
+int botan_x509_path_validation_destroy(botan_x509_path_validation_t result);
 
 BOTAN_FFI_EXPORT(3,3)
-int botan_x509_path_validation_restrictions_create(
-   botan_x509_path_validation_restrictions_t* restrictions,
+int botan_x509_path_restrictions_create(
+   botan_x509_path_restrictions_t* restrictions,
    bool require_rev,
    size_t minimum_key_strength,
    bool ocsp_all_intermediates,
    uint64_t max_ocsp_age,
    botan_x509_cert_store_t trusted_ocsp_responders);
 
-// TODO: botan_x509_path_validation_restrictions_create_trusted_hashes
+// TODO: botan_x509_path_restrictions_create_trusted_hashes
 
 /* 
 Path_Validation_Result x509_path_validate(
@@ -2916,9 +2917,9 @@ From the handbook:
 */
 BOTAN_FFI_EXPORT(3,3)
 int botan_x509_path_validate(
-   botan_x509_path_validation_result_t* result,
+   botan_x509_path_validation_t* result,
    botan_x509_cert_t end_cert,
-   botan_x509_path_validation_restrictions_t* restrictions,
+   botan_x509_path_restrictions_t* restrictions,
    botan_x509_cert_store_t cert_store,
    const char* hostname,
    unsigned int usage,
@@ -2928,49 +2929,49 @@ int botan_x509_path_validate(
                    // Probably need to move data type decls to x509 general
    );
 
-// TODO: Just call it botan_x509_path_validation_result_success?
+// TODO: Just call it botan_x509_path_validation_success?
 // NOTE: Returns a boolean success code
 BOTAN_FFI_EXPORT(3,3)
-int botan_x509_path_validation_result_successful_validation(
-   botan_x509_path_validation_result_t pvr);
+int botan_x509_path_validation_successful_validation(
+   botan_x509_path_validation_t pvr);
 
 BOTAN_FFI_EXPORT(3,3)
-int botan_x509_path_validation_result_result_string(
-   char* result_string,
-   botan_x509_path_validation_result_t pvr);
+int botan_x509_path_validation_result_string(
+   char* result_string, size_t* result_string_len,
+   botan_x509_path_validation_t pvr);
 
 BOTAN_FFI_EXPORT(3,3)
-int botan_x509_path_validation_result_trust_root(
+int botan_x509_path_validation_trust_root(
    botan_x509_cert_t* trust_root,
-   botan_x509_path_validation_result_t pvr);
+   botan_x509_path_validation_t pvr);
 
 // NOTE: Returns an array of results
 // SEE: Discussion on arrays / ownership
 BOTAN_FFI_EXPORT(3,3)
-int botan_x509_path_validation_result_cert_path(
-   botan_x509_cert_t** cert_path, size_t* cert_path_len,
-   botan_x509_path_validation_result_t pvr);
+int botan_x509_path_validation_cert_path(
+   botan_x509_cert_t* cert_path, size_t* cert_path_len,
+   botan_x509_path_validation_t pvr);
 
 // NOTE: Botan FFI is using `int` for Certificate_Status_Code in existing code
 BOTAN_FFI_EXPORT(3,3)
-int botan_x509_path_validation_result_status_code(
+int botan_x509_path_validation_status_code(
    int* status_code,
-   botan_x509_path_validation_result_t pvr);
+   botan_x509_path_validation_t pvr);
 
 // NOTE: Returns an array of results
 // SEE: Discussion on arrays / ownership
 BOTAN_FFI_EXPORT(3,3)
-int botan_x509_path_validation_result_all_status_codes(
+int botan_x509_path_validation_all_status_codes(
    int* status_codes, size_t* status_codes_len,
-   botan_x509_path_validation_result_t pvr);
+   botan_x509_path_validation_t pvr);
 
 // NOTE: Returns an array of results
 // SEE: Discussion on arrays / ownership
 // DOUBLE NOTE: It returns an array of cstrings
 BOTAN_FFI_EXPORT(3,3)
-int botan_x509_path_validation_result_trusted_hashes(
-   char** trusted_hashes, size_t* trusted_hashes_len,
-   botan_x509_path_validation_result_t pvr);
+int botan_x509_path_validation_trusted_hashes(
+   char** trusted_hashes, size_t* trusted_hash_sizes, size_t* trusted_hash_count,
+   botan_x509_path_validation_t pvr);
 
 /**
  * Key wrapping as per RFC 3394
