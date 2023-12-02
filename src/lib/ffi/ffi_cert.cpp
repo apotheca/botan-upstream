@@ -1143,20 +1143,16 @@ int botan_x509_create_cert_req(
    }
 
    return ffi_guard_thunk(__func__, [=]() -> int {
-      // Is this the right way to deal with this?
-      // It *compiles* but I hesitate to conclude
-      // that this is correct
-      // Relatively confirmed - these cause the unit tests to truncate
-      // TODO: Test in GHCi to get C++ error messages
-      std::unique_ptr<Botan::PKCS10_Request> csr_ptr; 
-      *csr_ptr = Botan::X509::create_cert_req(
+
+      auto csr_obj = std::make_unique<Botan::PKCS10_Request>(Botan::X509::create_cert_req(
          safe_get(opts),
          safe_get(key),
          hash_fn ? hash_fn : "",
          safe_get(rng)
-      );
-      *csr = new botan_x509_csr_struct(std::move(csr_ptr));
+      ));
+      *csr = new botan_x509_csr_struct(std::move(csr_obj));
       return BOTAN_FFI_SUCCESS;
+      
    });
 
 #else
@@ -1206,20 +1202,16 @@ int botan_x509_create_self_signed_cert(
    }
 
    return ffi_guard_thunk(__func__, [=]() -> int {
-      // Is this the right way to deal with this?
-      // It *compiles* but I hesitate to conclude
-      // that this is correct
-      // Relatively confirmed - these cause the unit tests to truncate
-      // TODO: Test in GHCi to get C++ error messages
-      std::unique_ptr<Botan::X509_Certificate> cert_ptr; 
-      *cert_ptr = Botan::X509::create_self_signed_cert(
+
+      auto cert_obj = std::make_unique<Botan::X509_Certificate>(Botan::X509::create_self_signed_cert(
          safe_get(opts),
          safe_get(key),
          hash_fn ? hash_fn : "",
          safe_get(rng)
-      );
-      *cert = new botan_x509_cert_struct(std::move(cert_ptr));
+      ));
+      *cert = new botan_x509_cert_struct(std::move(cert_obj));
       return BOTAN_FFI_SUCCESS;
+
    });
 
 #else
