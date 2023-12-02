@@ -7,7 +7,10 @@
 
 #include <botan/ffi.h>
 #include <botan/pubkey.h>
-// #include <botan/sqlite3.h>
+
+#if defined(BOTAN_HAS_SQLITE3)
+#include <botan/sqlite3.h>
+#endif
 
 #include <botan/internal/ffi_pkey.h>
 #include <botan/internal/ffi_rng.h>
@@ -27,7 +30,9 @@
    #include <botan/certstor.h>
    #include <botan/certstor_flatfile.h>
    #include <botan/certstor_sql.h>
-   // #include <botan/certstor_sqlite.h>
+#if defined(BOTAN_HAS_SQLITE3)
+   #include <botan/certstor_sqlite.h>
+#endif
    #include <botan/certstor_system.h>
    // #include <botan/certstor_macos.h>
    // #include <botan/certstor_windows.h>
@@ -1141,6 +1146,8 @@ int botan_x509_create_cert_req(
       // Is this the right way to deal with this?
       // It *compiles* but I hesitate to conclude
       // that this is correct
+      // Relatively confirmed - these cause the unit tests to truncate
+      // TODO: Test in GHCi to get C++ error messages
       std::unique_ptr<Botan::PKCS10_Request> csr_ptr; 
       *csr_ptr = Botan::X509::create_cert_req(
          safe_get(opts),
@@ -1202,6 +1209,8 @@ int botan_x509_create_self_signed_cert(
       // Is this the right way to deal with this?
       // It *compiles* but I hesitate to conclude
       // that this is correct
+      // Relatively confirmed - these cause the unit tests to truncate
+      // TODO: Test in GHCi to get C++ error messages
       std::unique_ptr<Botan::X509_Certificate> cert_ptr; 
       *cert_ptr = Botan::X509::create_self_signed_cert(
          safe_get(opts),
@@ -1881,7 +1890,9 @@ int botan_x509_cert_store_sql_generate_crls(
    botan_x509_cert_store_t cert_store) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
 
-   if(crls == nullptr || crls_len == nullptr) {
+   // TODO: Fill crls_len if crls is nullptr
+
+   if(crls == nullptr) {
       return BOTAN_FFI_ERROR_NULL_POINTER;
    }
 
@@ -1914,7 +1925,7 @@ int botan_x509_cert_store_sqlite3_create(
    const char* passwd,
    botan_rng_t rng,
    const char* table_prefix) {
-#if defined(BOTAN_HAS_X509_CERTIFICATES)
+#if defined(BOTAN_HAS_X509_CERTIFICATES) && defined(BOTAN_HAS_SQLITE3)
 
    if(cert_store == nullptr || db_path == nullptr) {
       return BOTAN_FFI_ERROR_NULL_POINTER;
@@ -1922,18 +1933,13 @@ int botan_x509_cert_store_sqlite3_create(
 
    return ffi_guard_thunk(__func__, [=]() -> int {
 
-      // auto cert_store_obj = std::make_unique<Botan::Certificate_Store_In_SQLite>(
-      //    std::string(db_path),
-      //    passwd ? passwd : "",
-      //    safe_get(rng),
-      //    table_prefix ? table_prefix : "");
-      // *cert_store = new botan_x509_cert_store_struct(std::move(cert_store_obj));
-      // return BOTAN_FFI_SUCCESS;
-
-      // NOTE: Can't find / include <botan/sqlite3.h> nor <botan/certstor_sqlite.h>?
-      // Thus, no access to Certificate_Store_In_SQLite
-      BOTAN_UNUSED(passwd,rng,table_prefix);
-      return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+      auto cert_store_obj = std::make_unique<Botan::Certificate_Store_In_SQLite>(
+         std::string(db_path),
+         passwd ? passwd : "",
+         safe_get(rng),
+         table_prefix ? table_prefix : "");
+      *cert_store = new botan_x509_cert_store_struct(std::move(cert_store_obj));
+      return BOTAN_FFI_SUCCESS;
 
    });
 
