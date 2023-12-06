@@ -888,7 +888,159 @@ int botan_x509_cert_verify_with_crl(int* result_code,
 #endif
 }
 
-// TODO: More CRL functions
+int botan_x509_crl_get_revoked(
+   botan_x509_crl_entry_t* out, size_t* out_len,
+   botan_x509_crl_t crl) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   BOTAN_UNUSED(out,out_len,crl);
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   BOTAN_UNUSED(out,out_len,crl);
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+int botan_x509_crl_get_issuer_dn(
+   uint8_t out[], size_t* out_len,
+   botan_x509_crl_t crl,
+   const char* key,
+   size_t index) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   BOTAN_UNUSED(out,out_len,crl,key,index);
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   BOTAN_UNUSED(out,out_len,crl,key,index);
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+int botan_x509_crl_extensions(
+   botan_x509_exts_t* exts,
+   botan_x509_crl_t crl) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   BOTAN_UNUSED(exts,crl);
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   BOTAN_UNUSED(exts,crl);
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+int botan_x509_crl_authority_key_id(
+   uint8_t out[], size_t* out_len,
+   botan_x509_crl_t crl) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   BOTAN_UNUSED(out,out_len,crl);
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   BOTAN_UNUSED(out,out_len,crl);
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+int botan_x509_crl_serial_number(
+   uint32_t* crl_number,
+   botan_x509_crl_t crl) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   BOTAN_UNUSED(crl_number,crl);
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   BOTAN_UNUSED(crl_number,crl);
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+int botan_x509_crl_this_update(
+   uint64_t* time,
+   botan_x509_crl_t crl) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   BOTAN_UNUSED(time,crl);
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   BOTAN_UNUSED(time,crl);
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+int botan_x509_crl_next_update(
+   uint64_t* time,
+   botan_x509_crl_t crl) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   BOTAN_UNUSED(time,crl);
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   BOTAN_UNUSED(time,crl);
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+int botan_x509_crl_issuing_distribution_point(
+   uint8_t out[], size_t* out_len,
+   botan_x509_crl_t crl) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   BOTAN_UNUSED(out,out_len,crl);
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   BOTAN_UNUSED(out,out_len,crl);
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+int botan_x509_crl_create_der(
+   botan_x509_crl_t* crl,
+   const uint8_t der[], size_t der_len) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   BOTAN_UNUSED(crl,der,der_len);
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   BOTAN_UNUSED(crl,der,der_len);
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+int botan_x509_crl_create(
+   botan_x509_crl_t* crl,
+   const uint8_t issuer_dn[], size_t issuer_dn_len,
+   uint64_t this_update,
+   uint64_t next_update,
+   botan_x509_crl_entry_t* entries, size_t entries_len) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   BOTAN_UNUSED(crl,issuer_dn,issuer_dn_len,this_update,next_update,entries,entries_len);
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   BOTAN_UNUSED(crl,issuer_dn,issuer_dn_len,this_update,next_update,entries,entries_len);
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+int botan_x509_crl_add_entry(
+   botan_x509_crl_t crl,
+   botan_x509_crl_entry_t entry) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   BOTAN_UNUSED(crl,entry);
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   BOTAN_UNUSED(crl,entry);
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+int botan_x509_crl_revoke_cert(
+   botan_x509_crl_t crl,
+   botan_x509_crl_entry_t cert,
+   uint32_t crl_code) {
+#if defined(BOTAN_HAS_X509_CERTIFICATES)
+   BOTAN_UNUSED(crl,cert,crl_code);
+   return BOTAN_FFI_ERROR_INTERNAL_ERROR;
+#else
+   BOTAN_UNUSED(crl,cert,crl_code);
+   return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+/*
+* X.509 CRL Entry
+**************************/
 
 int botan_x509_crl_entry_destroy(botan_x509_crl_entry_t entry) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
@@ -1152,7 +1304,7 @@ int botan_x509_create_cert_req(
       ));
       *csr = new botan_x509_csr_struct(std::move(csr_obj));
       return BOTAN_FFI_SUCCESS;
-      
+
    });
 
 #else

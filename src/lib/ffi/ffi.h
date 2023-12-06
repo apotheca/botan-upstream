@@ -1754,6 +1754,22 @@ enum class Usage_Type {
 // of things involving strings and arrays.
 // For instance, I am not using write_str_output or anything like that.
 
+// NOTE: Many portions of  the X509 spec have been ignored / elided in
+// in the FFI in various ways - in particular:
+//    Distinguished Names by encoded strings and invidual attribute lookup
+//    Extensions by the Options struct
+//    Path Validation by botan_x509_cert_verify_with_crl (which is just a wrapper
+//       around x509_path_validate)
+// This suffices in limiting the API surface for the read-only purposes
+// of the extant X509 FFI, but do not necessarily suffice for the purposes of
+// read-write-create that the extended FFI needs
+// It was difficult to tell up-front what these needs were, and so some code
+// has been written that is now obviated, at least for the moment.
+// This is fine for now; we can create Certificate Authorities, Revocation Lists,
+// Stores, and Signing Requests to sign new Certificates, which is a nice chunk of
+// new FFI functionality. Given more time, we could make it more complete and
+// consistent, but that would require more changes to the existing API.
+
 /*
 * X.509 distinguished names
 **************************/
@@ -2192,19 +2208,19 @@ BOTAN_FFI_EXPORT(2, 8) const char* botan_x509_cert_validation_status(int code);
 typedef struct botan_x509_crl_struct* botan_x509_crl_t;
 typedef struct botan_x509_crl_entry_struct* botan_x509_crl_entry_t;
 
-// TODO: FFI constants for:
+/* Must match values of CRL_Code in pkix_enums.h */
 /*
-enum class CRL_Code : uint32_t {
-   Unspecified = 0,
-   KeyCompromise = 1,
-   CaCompromise = 2,
-   AffiliationChanged = 3,
-   Superseded = 4,
-   CessationOfOperation = 5,
-   CertificateHold = 6,
-   RemoveFromCrl = 8,
-   PrivilegeWithdrawn = 9,
-   AaCompromise = 10,
+enum botan_x509_crl_code {
+   UNSPECIFIED = 0,
+   KEY_COMPROMISE = 1,
+   CA_COMPROMISE = 2,
+   AFFILIATION_CHANGED = 3,
+   SUPERCEDED = 4,
+   CESSATION_OF_OPERATION = 5,
+   CERTIFICATE_HOLD = 6,
+   REMOVE_FROM_CRL = 8,
+   PRIVILEGE_WITHDRAWN = 9,
+   AA_COMPROMISE = 10,
 };
 */
 
@@ -2218,7 +2234,11 @@ BOTAN_FFI_EXPORT(2, 13) int botan_x509_crl_destroy(botan_x509_crl_t crl);
  * Given a CRL and a certificate,
  * check if the certificate is revoked on that particular CRL
  */
+// TODO: BOTAN_DEPRECATED("Use botan_x509_crl_is_revoked")
 BOTAN_FFI_EXPORT(2, 13) int botan_x509_is_revoked(botan_x509_crl_t crl, botan_x509_cert_t cert);
+
+// TODO:
+// BOTAN_FFI_EXPORT(3, 3) int botan_x509_crl_is_revoked(botan_x509_crl_t crl, botan_x509_cert_t cert);
 
 /**
  * Different flavor of `botan_x509_cert_verify`, supports revocation lists.
@@ -2237,8 +2257,95 @@ int botan_x509_cert_verify_with_crl(int* validation_result,
                                     size_t required_strength,
                                     const char* hostname,
                                     uint64_t reference_time);
+// NOTE: Wrapper around x509_path_validate
 
-// TODO: More CRL functions
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_crl_get_revoked(
+   botan_x509_crl_entry_t* out, size_t* out_len,
+   botan_x509_crl_t crl);
+
+// NOTE: If we were to follow the pattern set in `botan_x509_cert_get_issuer_dn`
+//  then this would merely be an accessor for a single value using key + index)
+// NOTE: We're keeping our own return-value-first style still though so keep that
+//  difference in mind
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_crl_get_issuer_dn(
+   uint8_t out[], size_t* out_len,
+   botan_x509_crl_t crl,
+   const char* key,
+   size_t index);
+
+// TODO: Variant that returns object
+// BOTAN_FFI_EXPORT(3,3)
+// int botan_x509_crl_issuer_dn(
+//    botan_x509_dn_t* dn,
+//    botan_x509_crl_t crl);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_crl_extensions(
+   botan_x509_exts_t* exts,
+   botan_x509_crl_t crl);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_crl_authority_key_id(
+   uint8_t out[], size_t* out_len,
+   botan_x509_crl_t crl);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_crl_serial_number(
+   uint32_t* crl_number,
+   botan_x509_crl_t crl);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_crl_this_update(
+   uint64_t* time,
+   botan_x509_crl_t crl);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_crl_next_update(
+   uint64_t* time,
+   botan_x509_crl_t crl);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_crl_issuing_distribution_point(
+   uint8_t out[], size_t* out_len,
+   botan_x509_crl_t crl);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_crl_create_der(
+   botan_x509_crl_t* crl,
+   const uint8_t der[], size_t der_len);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_crl_create(
+   botan_x509_crl_t* crl,
+   const uint8_t issuer_dn[], size_t issuer_dn_len,
+   uint64_t this_update,
+   uint64_t next_update,
+   botan_x509_crl_entry_t* entries, size_t entries_len);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_crl_add_entry(
+   botan_x509_crl_t crl,
+   botan_x509_crl_entry_t entry);
+
+BOTAN_FFI_EXPORT(3,3)
+int botan_x509_crl_revoke_cert(
+   botan_x509_crl_t crl,
+   botan_x509_crl_entry_t cert,
+   uint32_t crl_code);
+
+// -- NOTE: A convenience function
+// foreign import ccall unsafe botan_x509_crl_revoke_cert
+//     :: X509CRLPtr
+//     -> X509CertPtr
+//     -> Word32   -- Reason
+//     -> IO BotanErrorCode
+
+// TODO: Convenience: _add_entries, _revoke_certs?
+/*
+* X.509 CRL Entry
+**************************/
 
 BOTAN_FFI_EXPORT(3,3)
 int botan_x509_crl_entry_destroy(botan_x509_crl_entry_t entry);
